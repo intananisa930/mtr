@@ -59,6 +59,12 @@ export default function Passport() {
         <div style={{ background: "#1E2A3A", border: "1px solid #2D3F52", padding: "5px 10px", borderRadius: 8, fontSize: 13, fontWeight: 700, color: "#E2E8F0" }}>
           {stamps.length} / 38 🎖️
         </div>
+         <button
+          onClick={() => { localStorage.removeItem("staffId"); localStorage.removeItem("staffName"); navigate("/"); }}
+          style={{ background: "none", border: "1px solid #2D3F52", borderRadius: 8, padding: "5px 10px", fontSize: 12, color: "#64748B", cursor: "pointer" }}
+        >
+          Logout
+        </button>
       </div>
 
       <div style={{ padding: "20px" }}>
