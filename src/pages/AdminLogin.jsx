@@ -2,6 +2,39 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0A0612; color: #E9D5FF; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  .dot-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .dot-grid svg { opacity: 0.06; width: 100%; height: 100%; }
+
+  .wrap { max-width: 400px; margin: 0 auto; padding: 80px 20px; position: relative; z-index: 1; }
+
+  .logo { display: inline-block; background: #C4197D; color: #fff; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 13px; padding: 5px 10px; border-radius: 6px; margin-bottom: 24px; letter-spacing: 1px; }
+
+  .title { font-family: 'Space Grotesk',sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 8px;
+    background: linear-gradient(135deg,#fff,#E9D5FF,#C4197D);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { font-size: 14px; color: #6B4F8B; margin-bottom: 32px; line-height: 1.6; }
+
+  .card { background: rgba(26,13,46,0.8); border: 1px solid rgba(196,25,125,0.2); border-radius: 20px; padding: 28px; backdrop-filter: blur(8px); }
+  .flabel { font-size: 11px; font-weight: 600; color: #7C3AED; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .finput { width: 100%; background: rgba(10,6,18,0.6); border: 1px solid rgba(124,58,237,0.3); border-radius: 12px; padding: 14px 16px; font-size: 15px; color: #F3E8FF; font-family: 'Inter',sans-serif; outline: none; transition: all 0.2s; margin-bottom: 16px; }
+  .finput:focus { border-color: #C4197D; box-shadow: 0 0 0 3px rgba(196,25,125,0.1); }
+  .finput::placeholder { color: #4B3B6B; }
+
+  .btn-primary { width: 100%; padding: 15px; border-radius: 14px; font-size: 15px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#C4197D,#7C3AED); color: #fff; box-shadow: 0 4px 20px rgba(196,25,125,0.4); transition: all 0.2s; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(196,25,125,0.5); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .err { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); color: #F87171; font-size: 13px; padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; }
+  .back-link { text-align: center; margin-top: 16px; font-size: 12px; color: #4B3B6B; }
+  .back-link a { color: #7C3AED; text-decoration: none; font-weight: 600; }
+`;
+
 export default function AdminLogin() {
   const [staffId, setStaffId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,7 +45,6 @@ export default function AdminLogin() {
     if (!staffId.trim()) return;
     setLoading(true);
     setError(null);
-
     try {
       const { data } = await supabase
         .from("admins")
@@ -29,7 +61,6 @@ export default function AdminLogin() {
       sessionStorage.setItem("isAdmin", "true");
       sessionStorage.setItem("adminName", data.name || staffId);
       navigate("/admin");
-
     } catch (err) {
       setError("Access denied. Your Staff ID is not authorised.");
       console.error(err);
@@ -39,41 +70,31 @@ export default function AdminLogin() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "80px auto", padding: 20, fontFamily: "Inter, sans-serif" }}>
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ display: "inline-block", background: "#E8002D", color: "#fff", fontWeight: 700, fontSize: 13, padding: "5px 10px", borderRadius: 6, marginBottom: 16 }}>MRT</div>
-        <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Admin Login</h2>
-        <p style={{ color: "#64748B", fontSize: 14 }}>Enter your Staff ID to access the admin dashboard.</p>
+    <>
+      <style>{css}</style>
+      <div className="dot-grid">
+        <svg><defs><pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#C4197D" /></pattern></defs><rect width="100%" height="100%" fill="url(#dots)" /></svg>
       </div>
-
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 6, color: "#64748B", textTransform: "uppercase" }}>Staff ID</label>
-        <input
-          placeholder="Enter your Staff ID"
-          value={staffId}
-          onChange={e => setStaffId(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && handleLogin()}
-          style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "1px solid #E2E8F0", fontSize: 16, outline: "none", fontFamily: "Inter, sans-serif" }}
-        />
-      </div>
-
-      {error && (
-        <div style={{ background: "rgba(232,0,45,0.08)", border: "1px solid rgba(232,0,45,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
-          <p style={{ color: "#E8002D", fontSize: 13, margin: 0 }}>{error}</p>
+      <div className="wrap">
+        <div className="logo">MIMOS</div>
+        <h2 className="title">Admin Login</h2>
+        <p className="subtitle">Enter your Staff ID to access the MTR Innovation Passport Challenge dashboard.</p>
+        <div className="card">
+          <label className="flabel">Staff ID</label>
+          <input
+            className="finput"
+            placeholder="Enter your Staff ID"
+            value={staffId}
+            onChange={e => setStaffId(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleLogin()}
+          />
+          {error && <div className="err">{error}</div>}
+          <button className="btn-primary" onClick={handleLogin} disabled={loading}>
+            {loading ? "Checking..." : "Login →"}
+          </button>
+          <p className="back-link"><a href="/">← Back to Passport</a></p>
         </div>
-      )}
-
-      <button
-        onClick={handleLogin}
-        disabled={loading}
-        style={{ width: "100%", padding: 14, background: "#E8002D", color: "#fff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, sans-serif" }}
-      >
-        {loading ? "Checking..." : "Login →"}
-      </button>
-
-      <p style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "#94A3B8" }}>
-        <a href="/" style={{ color: "#64748B" }}>← Back to Passport</a>
-      </p>
-    </div>
+      </div>
+    </>
   );
 }
