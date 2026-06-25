@@ -134,25 +134,16 @@ export default function Landing() {
       </div>
       <div className="land-wrap">
         <div className="land-hero">
-          <svg width="90" height="68" viewBox="0 0 120 90" fill="none" style={{ opacity: 0.3, marginBottom: 20 }}>
+          <svg width="90" height="68" viewBox="0 0 120 90" fill="none" style={{ opacity: 0.3, marginBottom: 20, display: "block", margin: "0 auto 20px" }}>
             <path d="M10 85 Q10 20 60 20 Q110 20 110 85" stroke="white" strokeWidth="6" strokeLinecap="round" fill="none"/>
             <path d="M25 85 Q25 35 60 35 Q95 35 95 85" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
             <path d="M40 85 Q40 48 60 48 Q80 48 80 85" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none"/>
           </svg>
           <div className="eyebrow">✦ Smart Solutions, Connected Futures</div>
           <h1 className="land-h1">MTR Innovation<br />Passport Challenge</h1>
-          <div className="steps">
-            {[
-              { num: "1", text: "Explore every domain & visit the booths" },
-              { num: "2", text: "Stamp your passport at each booth" },
-              { num: "3", text: "Claim your spot in the Lucky Draw" },
-            ].map(s => (
-              <div key={s.num} className="step">
-                <div className="step-num">{s.num}</div>
-                <div className="step-text">{s.text}</div>
-              </div>
-            ))}
-          </div>
+         <p style={{ fontSize: 15, color: "#C4A8D4", lineHeight: 1.7, marginBottom: 32 }}>
+            Your mission: explore every domain, stamp your passport, and claim your spot in the Lucky Draw.
+          </p>
           <div className="domain-icons">
             {DOMAINS.map((d, i) => (
               <div key={i} className="domain-icon-pill" style={{ background: d.bg, border: `1px solid ${d.border}` }}>{d.icon}</div>
