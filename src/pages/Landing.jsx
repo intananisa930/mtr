@@ -28,20 +28,7 @@ const css = `
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
 
-  .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; text-align: left; }
-  .step {
-    display: flex; align-items: center; gap: 14px;
-    background: rgba(196,25,125,0.06); border: 1px solid rgba(196,25,125,0.15);
-    border-radius: 14px; padding: 14px 16px;
-  }
-  .step-num {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: linear-gradient(135deg,#C4197D,#7C3AED);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 14px;
-    color: #fff; flex-shrink: 0;
-  }
-  .step-text { font-size: 14px; color: #E9D5FF; font-weight: 500; }
+  .land-sub { font-size: 15px; color: #C4A8D4; line-height: 1.7; margin-bottom: 32px; }
 
   .domain-icons { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
   .domain-icon-pill {
@@ -134,16 +121,14 @@ export default function Landing() {
       </div>
       <div className="land-wrap">
         <div className="land-hero">
-          <svg width="90" height="68" viewBox="0 0 120 90" fill="none" style={{ opacity: 0.3, marginBottom: 20, display: "block", margin: "0 auto 20px" }}>
+          <svg width="90" height="68" viewBox="0 0 120 90" fill="none" style={{ opacity: 0.3, display: "block", margin: "0 auto 20px" }}>
             <path d="M10 85 Q10 20 60 20 Q110 20 110 85" stroke="white" strokeWidth="6" strokeLinecap="round" fill="none"/>
             <path d="M25 85 Q25 35 60 35 Q95 35 95 85" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
             <path d="M40 85 Q40 48 60 48 Q80 48 80 85" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none"/>
           </svg>
           <div className="eyebrow">✦ Smart Solutions, Connected Futures</div>
           <h1 className="land-h1">MTR Innovation<br />Passport Challenge</h1>
-         <p style={{ fontSize: 15, color: "#C4A8D4", lineHeight: 1.7, marginBottom: 32 }}>
-            Your mission: explore every domain, stamp your passport, and claim your spot in the Lucky Draw.
-          </p>
+          <p className="land-sub">Your mission: explore every domain, stamp your passport, and claim your spot in the Lucky Draw.</p>
           <div className="domain-icons">
             {DOMAINS.map((d, i) => (
               <div key={i} className="domain-icon-pill" style={{ background: d.bg, border: `1px solid ${d.border}` }}>{d.icon}</div>
