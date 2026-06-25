@@ -92,4 +92,33 @@ export default function Presenter() {
         <div className="logo">MIMOS</div>
         {booth ? (
           <>
-            <div className="domain-badge">{booth.dom
+            <div className="domain-badge">{booth.domain_name}</div>
+            <h1 className="booth-name">{booth.name}</h1>
+            <p className="booth-use">{booth.use_case}</p>
+          </>
+        ) : (
+          <p className="loading">Loading booth info...</p>
+        )}
+
+        {qrSrc ? (
+          <div className="qr-wrap">
+            <img src={qrSrc} alt="Booth QR Code" />
+          </div>
+        ) : (
+          <div style={{ width: 320, height: 320, background: "rgba(26,13,46,0.6)", borderRadius: 24, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 32 }}>
+            <p className="loading">Generating QR...</p>
+          </div>
+        )}
+
+        <div className="timer-wrap">
+          <div className="timer-num" style={{ color: timerColor }}>{secondsLeft}</div>
+          <div className="timer-lbl">seconds remaining</div>
+          <div className="timer-bar-bg">
+            <div className="timer-bar-fill" style={{ width: barWidth, background: timerColor }} />
+          </div>
+        </div>
+        <p className="refresh-hint">QR refreshes automatically every 60 seconds</p>
+      </div>
+    </>
+  );
+}
