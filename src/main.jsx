@@ -8,6 +8,7 @@ import Presenter from "./pages/Presenter";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import Draw from "./pages/Draw";
+import Leaderboard from "./pages/Leaderboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/passport" element={<Passport />} />
       <Route path="/scan" element={<Scan />} />
       <Route path="/presenter/:boothId" element={<Presenter />} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/admin-login" element={<AdminLogin />} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       <Route path="/admin/draw" element={<ProtectedRoute><Draw /></ProtectedRoute>} />
