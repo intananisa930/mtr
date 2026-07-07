@@ -222,16 +222,6 @@ export default function Passport() {
             </div>
           </div>
 
-          {eligible && !showCompletion && (
-            <div style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 14, padding: "14px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => setShowCompletion(true)}>
-              <div style={{ fontSize: 24 }}>🏆</div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#10B981" }}>You are eligible for the Lucky Draw!</div>
-                <div style={{ fontSize: 11, color: "#6B4F8B", marginTop: 2 }}>Tap to view your achievement</div>
-              </div>
-            </div>
-          )}
-
           <div className="section-title">7 Solution Domains</div>
           {DOMAINS.map(domain => {
             const ds = stamps.filter(s => domain.techs.some(t => t.id === s));
