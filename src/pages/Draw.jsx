@@ -23,7 +23,7 @@ const css = `
   .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 44px; height: 44px; border-radius: 50%; background: #0A0612; border: 2px solid #C4197D; display: flex; align-items: center; justify-content: center; font-size: 18px; z-index: 2; }
 
   .btn-spin { width: 100%; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#C4197D,#7C3AED); color: #fff; box-shadow: 0 4px 30px rgba(196,25,125,0.4); transition: all 0.2s; letter-spacing: 0.3px; margin-bottom: 16px; }
-  .btn-spin:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(196,25,125,0.5); }
+  .btn-spin:hover { transform: translateY(-2px); }
   .btn-spin:disabled { background: rgba(26,13,46,0.7); box-shadow: none; cursor: not-allowed; transform: none; color: #6B4F8B; }
 
   .btn-next { width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#7C3AED,#A78BFA); color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,0.4); transition: all 0.2s; margin-bottom: 24px; }
@@ -46,6 +46,9 @@ const css = `
   .winner-prize { font-size: 11px; color: #6B4F8B; margin-top: 1px; }
   .winner-trophy { font-size: 18px; }
 
+  .btn-clear { width: 100%; padding: 11px; border-radius: 10px; font-size: 12px; font-weight: 600; font-family: 'Inter',sans-serif; cursor: pointer; background: rgba(248,113,113,0.06); color: #F87171; border: 1px solid rgba(248,113,113,0.2); transition: all 0.2s; margin-top: 10px; }
+  .btn-clear:hover { background: rgba(248,113,113,0.12); }
+
   .no-eligible { text-align: center; padding: 60px 20px; color: #6B4F8B; font-size: 14px; }
   .all-done { text-align: center; padding: 40px 20px; }
   .all-done-emoji { font-size: 56px; display: block; margin-bottom: 16px; }
@@ -56,6 +59,7 @@ const css = `
   .btn-back:hover { border-color: rgba(196,25,125,0.4); color: #E9D5FF; }
 
   .entries-count { display: inline-flex; align-items: center; gap: 6px; background: rgba(196,25,125,0.08); border: 1px solid rgba(196,25,125,0.2); color: #F9A8D4; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 100px; margin-bottom: 20px; }
+  .loading { text-align: center; padding: 40px; color: #6B4F8B; }
 `;
 
 function SpinWheel({ entries, onWinner }) {
@@ -101,10 +105,7 @@ function SpinWheel({ entries, onWinner }) {
     if (n > 0) drawWheel(rotRef.current);
     else {
       const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, 300, 300);
-      }
+      if (canvas) { const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, 300, 300); }
     }
   }, [entries]);
 
@@ -152,43 +153,79 @@ export default function Draw() {
   const [wheelEntries, setWheelEntries] = useState([]);
   const [currentWinner, setCurrentWinner] = useState(null);
   const [winners, setWinners] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase.from("participants").select("staff_id, name, stamps");
-      const elig = (data || []).filter(p => isEligible(p.stamps));
-      setEligible(elig);
-      // Build weighted entries — each stamp = 1 entry
-      const entries = elig.flatMap(p =>
-        Array(p.stamps.length).fill({ id: p.staff_id, name: p.staff_id, entries: p.stamps.length })
-      );
-      setWheelEntries(entries);
-    };
-    load();
-  }, []);
+  const loadData = async () => {
+    setLoading(true);
+
+    // Load winners from Supabase
+    const { data: winnersData } = await supabase
+      .from("winners")
+      .select("*")
+      .order("prize_number", { ascending: true });
+
+    const savedWinners = winnersData || [];
+    setWinners(savedWinners.map(w => ({
+      id: w.staff_id,
+      name: w.staff_id,
+      prize: `Prize ${w.prize_number}`,
+      entries: 0,
+    })));
+
+    // Load eligible participants
+    const { data: participantsData } = await supabase
+      .from("participants")
+      .select("staff_id, name, stamps");
+
+    const elig = (participantsData || []).filter(p => isEligible(p.stamps));
+    setEligible(elig);
+
+    // Remove already-won staff IDs from wheel
+    const wonIds = savedWinners.map(w => w.staff_id);
+    const entries = elig
+      .filter(p => !wonIds.includes(p.staff_id))
+      .flatMap(p => Array(p.stamps.length).fill({ id: p.staff_id, name: p.staff_id, entries: p.stamps.length }));
+
+    setWheelEntries(entries);
+    setLoading(false);
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   const handleWinner = (winner) => {
     setCurrentWinner(winner);
   };
 
-  const confirmWinner = () => {
+  const confirmWinner = async () => {
     if (!currentWinner) return;
 
-    // Add to winners list
-    const newWinner = {
+    const prizeNumber = winners.length + 1;
+
+    // Save winner to Supabase
+    await supabase.from("winners").insert({
+      staff_id: currentWinner.id,
+      prize_number: prizeNumber,
+    });
+
+    // Update local state
+    setWinners(prev => [...prev, {
       id: currentWinner.id,
-      name: currentWinner.name,
+      name: currentWinner.id,
+      prize: `Prize ${prizeNumber}`,
       entries: currentWinner.entries,
-      prize: `Prize ${winners.length + 1}`,
-    };
-    setWinners(prev => [...prev, newWinner]);
+    }]);
 
-    // Remove ALL entries of this winner from the wheel
+    // Remove winner from wheel
     setWheelEntries(prev => prev.filter(e => e.id !== currentWinner.id));
-
-    // Clear current winner to show wheel again
     setCurrentWinner(null);
+  };
+
+  const clearWinners = async () => {
+    if (!window.confirm("Are you sure you want to clear all winners? This cannot be undone.")) return;
+    await supabase.from("winners").delete().neq("id", 0);
+    setWinners([]);
+    loadData();
   };
 
   const DotGrid = () => (
@@ -197,7 +234,15 @@ export default function Draw() {
     </div>
   );
 
-  const totalRemaining = wheelEntries.filter((e, i, arr) => arr.findIndex(x => x.id === e.id) === i).length;
+  const totalRemaining = [...new Set(wheelEntries.map(e => e.id))].length;
+
+  if (loading) return (
+    <>
+      <style>{css}</style>
+      <DotGrid />
+      <div className="app"><div className="loading">Loading lucky draw...</div></div>
+    </>
+  );
 
   return (
     <>
@@ -206,10 +251,10 @@ export default function Draw() {
       <div className="app">
         <button className="back-btn" onClick={() => navigate("/admin")}>←</button>
         <h2 className="title">Lucky Draw</h2>
-        <p className="subtitle">{eligible.length} eligible participants · {winners.length} winners drawn</p>
+        <p className="subtitle">{eligible.length} eligible · {winners.length} winners drawn</p>
         <p className="hint">More stamps = more entries = higher chance of winning</p>
 
-        {/* Winners list */}
+        {/* Winners list — persists even after leaving page */}
         {winners.length > 0 && (
           <div className="winners-list-wrap">
             <div className="winners-list-title">🏆 Winners So Far</div>
@@ -218,15 +263,16 @@ export default function Draw() {
                 <div className="winner-num">{i + 1}</div>
                 <div className="winner-info">
                   <div className="winner-id">Staff ID: {w.id}</div>
-                  <div className="winner-prize">{w.prize} · {w.entries} stamps collected</div>
+                  <div className="winner-prize">{w.prize}</div>
                 </div>
                 <div className="winner-trophy">🎁</div>
               </div>
             ))}
+            <button className="btn-clear" onClick={clearWinners}>🗑️ Clear All Winners</button>
           </div>
         )}
 
-        {/* Current winner announcement */}
+        {/* Current winner */}
         {currentWinner && (
           <>
             <div className="winner-card">
@@ -254,9 +300,7 @@ export default function Draw() {
                 <SpinWheel entries={wheelEntries} onWinner={handleWinner} />
               </>
             ) : eligible.length === 0 ? (
-              <div className="no-eligible">
-                No eligible participants yet.<br />Participants need at least 1 stamp from each of the 7 domains.
-              </div>
+              <div className="no-eligible">No eligible participants yet.</div>
             ) : (
               <div className="all-done">
                 <span className="all-done-emoji">🏆</span>
