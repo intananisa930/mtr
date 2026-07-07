@@ -223,7 +223,7 @@ export default function Draw() {
 
   const clearWinners = async () => {
     if (!window.confirm("Are you sure you want to clear all winners? This cannot be undone.")) return;
-    await supabase.from("winners").delete().neq("id", 0);
+    await supabase.from("winners").delete().gte("id", 0);
     setWinners([]);
     loadData();
   };
