@@ -55,8 +55,13 @@ export default function Presenter() {
 
   useEffect(() => {
     const loadBooth = async () => {
-      const { data } = await supabase.from("booths").select("*").eq("booth_id", boothId).single();
-      setBooth(data);
+      let retries = 0;
+      while (retries < 5) {
+        const { data, error } = await supabase.from("booths").select("*").eq("booth_id", boothId).single();
+        if (data) { setBooth(data); break; }
+        retries++;
+        await new Promise(r => setTimeout(r, 2000)); // wait 2 seconds and retry
+      }
     };
     loadBooth();
   }, [boothId]);
