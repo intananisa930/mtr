@@ -43,8 +43,7 @@ const css = `
   .timer-bar-fill { height: 100%; border-radius: 100px; transition: width 1s linear, background 0.3s; }
 
   .refresh-hint { font-size: 12px; color: #4B3B6B; margin-top: 12px; }
-
-  .loading { font-size: 14px; color: #6B4F8B; }
+  .booth-id-label { font-size: 11px; color: #2D1B4E; margin-top: 8px; }
 `;
 
 export default function Presenter() {
@@ -53,17 +52,25 @@ export default function Presenter() {
   const [booth, setBooth] = useState(null);
   const [secondsLeft, setSecondsLeft] = useState(60);
 
+  // Load booth info with retries
   useEffect(() => {
     const loadBooth = async () => {
-      let retries = 0;
-      while (retries < 5) {
-        const { data, error } = await supabase.from("booths").select("*").eq("booth_id", boothId).single();
-        if (data) { setBooth(data); break; }
-        retries++;
-        await new Promise(r => setTimeout(r, 2000)); // wait 2 seconds and retry
+      for (let i = 0; i < 10; i++) {
+        try {
+          const { data, error } = await supabase
+            .from("booths")
+            .select("*")
+            .eq("booth_id", boothId)
+            .single();
+          if (data) {
+            setBooth(data);
+            return;
+          }
+        } catch (e) {}
+        await new Promise(r => setTimeout(r, 3000));
       }
     };
-    loadBooth();
+    if (boothId) loadBooth();
   }, [boothId]);
 
   const generateToken = async () => {
@@ -85,7 +92,6 @@ export default function Presenter() {
   }, [boothId]);
 
   const timerColor = secondsLeft <= 10 ? "#F87171" : secondsLeft <= 20 ? "#F59E0B" : "#10B981";
-  const barWidth = `${(secondsLeft / 60) * 100}%`;
 
   return (
     <>
@@ -95,14 +101,21 @@ export default function Presenter() {
       </div>
       <div className="wrap">
         <div className="logo">MIMOS</div>
+
         {booth ? (
           <>
             <div className="domain-badge">{booth.domain_name}</div>
             <h1 className="booth-name">{booth.name}</h1>
-            <p className="booth-use">{booth.use_case}</p>
+            {booth.use_case && <p className="booth-use">{booth.use_case}</p>}
           </>
         ) : (
-          <p className="loading">Loading booth info...</p>
+          <>
+            <div className="domain-badge">Loading...</div>
+            <h1 className="booth-name" style={{ fontSize: 20, color: "#6B4F8B" }}>
+              Booth: {boothId}
+            </h1>
+            <p className="booth-use">Connecting to database...</p>
+          </>
         )}
 
         {qrSrc ? (
@@ -111,7 +124,7 @@ export default function Presenter() {
           </div>
         ) : (
           <div style={{ width: 320, height: 320, background: "rgba(26,13,46,0.6)", borderRadius: 24, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 32 }}>
-            <p className="loading">Generating QR...</p>
+            <p style={{ color: "#6B4F8B" }}>Generating QR...</p>
           </div>
         )}
 
@@ -119,10 +132,11 @@ export default function Presenter() {
           <div className="timer-num" style={{ color: timerColor }}>{secondsLeft}</div>
           <div className="timer-lbl">seconds remaining</div>
           <div className="timer-bar-bg">
-            <div className="timer-bar-fill" style={{ width: barWidth, background: timerColor }} />
+            <div className="timer-bar-fill" style={{ width: `${(secondsLeft / 60) * 100}%`, background: timerColor }} />
           </div>
         </div>
         <p className="refresh-hint">QR refreshes automatically every 60 seconds</p>
+        <p className="booth-id-label">Booth ID: {boothId}</p>
       </div>
     </>
   );
