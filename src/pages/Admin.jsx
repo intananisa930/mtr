@@ -39,7 +39,8 @@ const css = `
   .section-title { font-size: 11px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
 
   /* Booth stats */
-  .booth-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 24px; align-items: start; }
+  .booth-grid { columns: 2; gap: 10px; margin-bottom: 24px; }
+  .booth-card { break-inside: avoid; margin-bottom: 10px; }
   .booth-card { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.12); border-radius: 14px; padding: 14px; }
   .booth-domain { font-size: 11px; font-weight: 600; color: #6B4F8B; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
   .booth-tech-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
@@ -162,7 +163,7 @@ export default function Admin() {
         {/* Booth completion stats */}
         <div className="section-title">Booth Visit Stats</div>
         <div className="booth-grid">
-          {[...DOMAINS].sort((a, b) => b.techs.length - a.techs.length).map(domain => (
+          {DOMAINS.map(domain => (
             <div key={domain.id} className="booth-card">
               <div className="booth-domain">
                 <span>{domain.icon}</span>
