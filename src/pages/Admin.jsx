@@ -39,7 +39,7 @@ const css = `
   .section-title { font-size: 11px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
 
   /* Booth stats */
-  .booth-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 24px; }
+  .booth-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
   .booth-card { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.12); border-radius: 14px; padding: 14px; }
   .booth-domain { font-size: 11px; font-weight: 600; color: #6B4F8B; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
   .booth-tech-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
