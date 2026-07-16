@@ -162,7 +162,7 @@ export default function Admin() {
         {/* Booth completion stats */}
         <div className="section-title">Booth Visit Stats</div>
         <div className="booth-grid">
-          {DOMAINS.map(domain => (
+          {[...DOMAINS].sort((a, b) => b.techs.length - a.techs.length).map(domain => (
             <div key={domain.id} className="booth-card">
               <div className="booth-domain">
                 <span>{domain.icon}</span>
