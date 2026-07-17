@@ -53,6 +53,7 @@ export const DOMAINS = [
       { id: "ind-2", name: "REL Lab", use: "Reliability Testing Services" },
       { id: "ind-3", name: "MBISeal", use: "Blockchain" },
       { id: "ind-4", name: "Quantum IDE", use: " " },
+      { id: "ind-5", name: "Digital QKD", use: "" },
     ],
   },
   {
@@ -87,11 +88,11 @@ export const DOMAINS = [
     colorBorder: "rgba(244,63,94,0.4)",
     techs: [
       { id: "rmk13-1", name: "Mi-Muallim", use: "Quran Detection" },
-      { id: "rmk13-2", name: "AI-Cybersecurity", use: " " },
+      { id: "rmk13-2", name: "AI-Driven Cybersecurity", use: " " },
       { id: "rmk13-3", name: "Mi-PALSU", use: "Deepfake Detection" },
       { id: "rmk13-4", name: "Mi-CIPTA", use: "Deepfake Creation" },
       { id: "rmk13-5", name: "Robotics", use: " " },
-      { id: "rmk13-6", name: "Quantum IDE", use: " " },
+      { id: "rmk13-6", name: "Blockchain Forensic Vault", use: " " },
     ],
   },
 ];
