@@ -36,14 +36,20 @@ const css = `
   .winner-name { font-family: 'Space Grotesk',sans-serif; font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 4px; }
   .winner-entries { font-size: 12px; color: #6B4F8B; }
 
-  .winners-list-wrap { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.15); border-radius: 18px; padding: 18px; margin-bottom: 20px; }
-  .winners-list-title { font-size: 11px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .session-block { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.15); border-radius: 18px; padding: 18px; margin-bottom: 16px; }
+  .session-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .session-morning { color: #F59E0B; }
+  .session-evening { color: #A78BFA; }
+  .session-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .session-dot-morning { background: #F59E0B; }
+  .session-dot-evening { background: #A78BFA; }
+
   .winner-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(124,58,237,0.08); }
   .winner-row:last-child { border-bottom: none; padding-bottom: 0; }
   .winner-num { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,#C4197D,#7C3AED); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 12px; color: #fff; flex-shrink: 0; }
   .winner-info { flex: 1; }
   .winner-id { font-size: 14px; font-weight: 700; color: #F3E8FF; }
-  .winner-prize { font-size: 11px; color: #6B4F8B; margin-top: 1px; }
+  .winner-time { font-size: 11px; color: #6B4F8B; margin-top: 1px; }
   .winner-trophy { font-size: 18px; }
 
   .btn-clear { width: 100%; padding: 11px; border-radius: 10px; font-size: 12px; font-weight: 600; font-family: 'Inter',sans-serif; cursor: pointer; background: rgba(248,113,113,0.06); color: #F87171; border: 1px solid rgba(248,113,113,0.2); transition: all 0.2s; margin-top: 10px; }
@@ -148,6 +154,11 @@ function SpinWheel({ entries, onWinner }) {
   );
 }
 
+function getSession(wonAt) {
+  const hour = new Date(wonAt).getHours();
+  return hour < 13 ? "morning" : "evening";
+}
+
 export default function Draw() {
   const [eligible, setEligible] = useState([]);
   const [wheelEntries, setWheelEntries] = useState([]);
@@ -159,21 +170,14 @@ export default function Draw() {
   const loadData = async () => {
     setLoading(true);
 
-    // Load winners from Supabase
     const { data: winnersData } = await supabase
       .from("winners")
       .select("*")
       .order("prize_number", { ascending: true });
 
     const savedWinners = winnersData || [];
-    setWinners(savedWinners.map(w => ({
-      id: w.staff_id,
-      name: w.staff_id,
-      prize: `Prize ${w.prize_number}`,
-      entries: 0,
-    })));
+    setWinners(savedWinners);
 
-    // Load eligible participants
     const { data: participantsData } = await supabase
       .from("participants")
       .select("staff_id, name, stamps");
@@ -181,7 +185,6 @@ export default function Draw() {
     const elig = (participantsData || []).filter(p => isEligible(p.stamps));
     setEligible(elig);
 
-    // Remove already-won staff IDs from wheel
     const wonIds = savedWinners.map(w => w.staff_id);
     const entries = elig
       .filter(p => !wonIds.includes(p.staff_id))
@@ -193,30 +196,23 @@ export default function Draw() {
 
   useEffect(() => { loadData(); }, []);
 
-  const handleWinner = (winner) => {
-    setCurrentWinner(winner);
-  };
+  const handleWinner = (winner) => setCurrentWinner(winner);
 
   const confirmWinner = async () => {
     if (!currentWinner) return;
-
     const prizeNumber = winners.length + 1;
 
-    // Save winner to Supabase
     await supabase.from("winners").insert({
       staff_id: currentWinner.id,
       prize_number: prizeNumber,
     });
 
-    // Update local state
     setWinners(prev => [...prev, {
-      id: currentWinner.id,
-      name: currentWinner.id,
-      prize: `Prize ${prizeNumber}`,
-      entries: currentWinner.entries,
+      staff_id: currentWinner.id,
+      prize_number: prizeNumber,
+      won_at: new Date().toISOString(),
     }]);
 
-    // Remove winner from wheel
     setWheelEntries(prev => prev.filter(e => e.id !== currentWinner.id));
     setCurrentWinner(null);
   };
@@ -236,6 +232,10 @@ export default function Draw() {
 
   const totalRemaining = [...new Set(wheelEntries.map(e => e.id))].length;
 
+  // Split winners into morning and evening
+  const morningWinners = winners.filter(w => getSession(w.won_at) === "morning");
+  const eveningWinners = winners.filter(w => getSession(w.won_at) === "evening");
+
   if (loading) return (
     <>
       <style>{css}</style>
@@ -254,28 +254,55 @@ export default function Draw() {
         <p className="subtitle">{eligible.length} eligible · {winners.length} winners drawn</p>
         <p className="hint">More stamps = more entries = higher chance of winning</p>
 
-        {/* Winners list — persists even after leaving page */}
-        {winners.length > 0 && (
-          <div className="winners-list-wrap">
-            <div className="winners-list-title">🏆 Winners So Far</div>
-            {winners.map((w, i) => (
+        {/* Morning Winners */}
+        {morningWinners.length > 0 && (
+          <div className="session-block">
+            <div className="session-title session-morning">
+              <div className="session-dot session-dot-morning" />
+              🌅 Morning Session Winners ({morningWinners.length})
+            </div>
+            {morningWinners.map((w, i) => (
               <div key={i} className="winner-row">
                 <div className="winner-num">{i + 1}</div>
                 <div className="winner-info">
-                  <div className="winner-id">Staff ID: {w.id}</div>
-                  <div className="winner-prize">{w.prize}</div>
+                  <div className="winner-id">Staff ID: {w.staff_id}</div>
+                  <div className="winner-time">Prize {w.prize_number} · {new Date(w.won_at).toLocaleTimeString()}</div>
                 </div>
                 <div className="winner-trophy">🎁</div>
               </div>
             ))}
-            <button className="btn-clear" onClick={clearWinners}>🗑️ Clear All Winners</button>
           </div>
+        )}
+
+        {/* Evening Winners */}
+        {eveningWinners.length > 0 && (
+          <div className="session-block">
+            <div className="session-title session-evening">
+              <div className="session-dot session-dot-evening" />
+              🌙 Evening Session Winners ({eveningWinners.length})
+            </div>
+            {eveningWinners.map((w, i) => (
+              <div key={i} className="winner-row">
+                <div className="winner-num">{i + 1}</div>
+                <div className="winner-info">
+                  <div className="winner-id">Staff ID: {w.staff_id}</div>
+                  <div className="winner-time">Prize {w.prize_number} · {new Date(w.won_at).toLocaleTimeString()}</div>
+                </div>
+                <div className="winner-trophy">🎁</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Clear button */}
+        {winners.length > 0 && (
+          <button className="btn-clear" onClick={clearWinners}>🗑️ Clear All Winners</button>
         )}
 
         {/* Current winner */}
         {currentWinner && (
           <>
-            <div className="winner-card">
+            <div className="winner-card" style={{ marginTop: 20 }}>
               <span className="winner-emoji">🎉</span>
               <div className="winner-label">Prize {winners.length + 1} Winner!</div>
               <div className="winner-name">Staff ID: {currentWinner.id}</div>
@@ -292,7 +319,7 @@ export default function Draw() {
           <>
             {wheelEntries.length > 0 ? (
               <>
-                <div style={{ textAlign: "center" }}>
+                <div style={{ textAlign: "center", marginTop: 20 }}>
                   <div className="entries-count">
                     🎯 {totalRemaining} participants remaining · {wheelEntries.length} total entries
                   </div>
