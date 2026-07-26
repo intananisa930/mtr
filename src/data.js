@@ -100,5 +100,7 @@ export const DOMAINS = [
 export const DOMAIN_IDS = DOMAINS.map(d => d.id);
 
 export function isEligible(stamps) {
-  return DOMAINS.every(d => d.techs.some(t => stamps.includes(t.id)));
+  const visitedAllDomains = DOMAINS.every(d => d.techs.some(t => stamps.includes(t.id)));
+  const hasEnoughStamps = stamps.length >= 10;
+  return visitedAllDomains && hasEnoughStamps;
 }
