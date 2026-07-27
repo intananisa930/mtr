@@ -1,27 +1,5 @@
 export const DOMAINS = [
   {
-    id: "edu", name: "Education", icon: "🎓",
-    color: "#6366F1",
-    colorBg: "rgba(99,102,241,0.12)",
-    colorBorder: "rgba(99,102,241,0.4)",
-    techs: [
-      { id: "edu-1", name: "Mi-KidzAlert", use: "Smart Attendance & Child Safety" },
-      { id: "edu-2", name: "Mi-ITS", use: "Real-Time Indoor Tracking" },
-    ],
-  },
-  {
-    id: "mfg", name: "Smart Manufacturing", icon: "🏭",
-    color: "#F59E0B",
-    colorBg: "rgba(245,158,11,0.12)",
-    colorBorder: "rgba(245,158,11,0.4)",
-    techs: [
-      { id: "mfg-1", name: "Mi-TEMS", use: "Predictive Equipment Monitoring" },
-      { id: "mfg-2", name: "Mi-VisionAOI", use: "AI Quality Inspection" },
-      { id: "mfg-3", name: "Mi-IndusData++", use: "Synthetic Data Generation" },
-      { id: "mfg-4", name: "Mi-GraphInk", use: "Smart Sensor Design" },
-    ],
-  },
-  {
     id: "agri", name: "Smart Agriculture", icon: "🌾",
     color: "#84CC16",
     colorBg: "rgba(132,204,22,0.12)",
@@ -49,6 +27,21 @@ export const DOMAINS = [
       { id: "city-7", name: "Mi-ACE", use: "Intelligent Chiller Optimisation" },
       { id: "city-8", name: "AIREM", use: "Smart Energy Monitoring" },
       { id: "city-9", name: "Smart Inverter", use: "Smart Solar Energy" },
+      { id: "edu-1", name: "Mi-KidzAlert", use: "Smart Attendance & Child Safety" },
+      { id: "edu-2", name: "Mi-ITS", use: "Real-Time Indoor Tracking" },
+    ],
+  },
+  {
+    id: "ind", name: "Industry Support & Services", icon: "⚙️",
+    color: "#EC4899",
+    colorBg: "rgba(236,72,153,0.12)",
+    colorBorder: "rgba(236,72,153,0.4)",
+    techs: [
+      { id: "ind-1", name: "FAB", use: "Semiconductor Fabrication Services" },
+      { id: "ind-2", name: "REL Lab", use: "Reliability Testing Services" },
+      { id: "ind-3", name: "MBISeal", use: "Blockchain" },
+      { id: "ind-4", name: "Quantum IDE", use: "Accelerated Quantum Research Validation" },
+      { id: "ind-5", name: "Digital QKD", use: "Future-proof Encryption Key Distribution" },
     ],
   },
   {
@@ -63,16 +56,15 @@ export const DOMAINS = [
     ],
   },
   {
-    id: "ind", name: "Industry Support & Services", icon: "⚙️",
-    color: "#EC4899",
-    colorBg: "rgba(236,72,153,0.12)",
-    colorBorder: "rgba(236,72,153,0.4)",
+    id: "mfg", name: "Smart Manufacturing", icon: "🏭",
+    color: "#F59E0B",
+    colorBg: "rgba(245,158,11,0.12)",
+    colorBorder: "rgba(245,158,11,0.4)",
     techs: [
-      { id: "ind-1", name: "FAB", use: "Semiconductor Fabrication Services" },
-      { id: "ind-2", name: "REL Lab", use: "Reliability Testing Services" },
-      { id: "ind-3", name: "MBISeal", use: "Blockchain" },
-      { id: "ind-4", name: "Quantum IDE", use: "Accelerated Quantum Research Validation" },
-      { id: "ind-5", name: "Digital QKD", use: "Future-proof Encryption Key Distribution" },
+      { id: "mfg-1", name: "Mi-TEMS", use: "Predictive Equipment Monitoring" },
+      { id: "mfg-2", name: "Mi-VisionAOI", use: "AI Quality Inspection" },
+      { id: "mfg-3", name: "Mi-IndusData++", use: "Synthetic Data Generation" },
+      { id: "mfg-4", name: "Mi-GraphInk", use: "Smart Sensor Design" },
     ],
   },
   {
