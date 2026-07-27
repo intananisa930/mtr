@@ -27,8 +27,8 @@ export const DOMAINS = [
       { id: "city-7", name: "Mi-ACE", use: "Intelligent Chiller Optimisation" },
       { id: "city-8", name: "AIREM", use: "Smart Energy Monitoring" },
       { id: "city-9", name: "Smart Inverter", use: "Smart Solar Energy" },
-      { id: "edu-1", name: "Mi-KidzAlert", use: "Smart Attendance & Child Safety" },
-      { id: "edu-2", name: "Mi-ITS", use: "Real-Time Indoor Tracking" },
+      { id: "city-10", name: "Mi-KidzAlert", use: "Smart Attendance & Child Safety" },
+      { id: "city-11", name: "Mi-ITS", use: "Real-Time Indoor Tracking" },
     ],
   },
   {
