@@ -7,6 +7,7 @@ export const DOMAINS = [
     techs: [
       { id: "agri-1", name: "INSPECTRA", use: "Palm Oil Quality Monitoring" },
       { id: "agri-2", name: "UGV", use: "Autonomous Plantation Operations" },
+      { id: "agri-6", name: "Mi-ATNAV Cognitive", use: "Intelligent Perception for Autonomous Robots" },
       { id: "agri-3", name: "Mi-SWIS", use: "Smart Weighbridge Monitoring" },
       { id: "agri-4", name: "Mi-FFB Grader", use: "AI FFB Grading" },
       { id: "agri-5", name: "Mi-VGuard", use: "Smart Plantation Surveillance" },
@@ -28,7 +29,6 @@ export const DOMAINS = [
       { id: "city-8", name: "AIREM", use: "Smart Energy Monitoring" },
       { id: "city-9", name: "Smart Inverter", use: "Smart Solar Energy" },
       { id: "city-10", name: "Mi-KidzAlert", use: "Smart Attendance & Child Safety" },
-      { id: "city-11", name: "Mi-ITS", use: "Real-Time Indoor Tracking" },
     ],
   },
   {
@@ -65,6 +65,7 @@ export const DOMAINS = [
       { id: "mfg-2", name: "Mi-VisionAOI", use: "AI Quality Inspection" },
       { id: "mfg-3", name: "Mi-IndusData++", use: "Synthetic Data Generation" },
       { id: "mfg-4", name: "Mi-GraphInk", use: "Smart Sensor Design" },
+      { id: "city-11", name: "Mi-ITS", use: "Real-Time Indoor Tracking" },
     ],
   },
   {
@@ -77,7 +78,6 @@ export const DOMAINS = [
       { id: "rmk13-2", name: "AI-Driven Cybersecurity", use: "" },
       { id: "rmk13-3", name: "Mi-PALSU", use: "Deepfake Detection" },
       { id: "rmk13-4", name: "Mi-CIPTA", use: "Deepfake Creation" },
-      { id: "rmk13-5", name: "Robotics", use: "Intelligent Perception for Autonomous Robots" },
       { id: "rmk13-6", name: "Blockchain Forensic Vault", use: "Digital Forensic Evidence Preservation" },
     ],
   },
