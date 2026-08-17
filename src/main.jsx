@@ -3,8 +3,8 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Passport from "./pages/Passport";
-import Scan from "./pages/Scan";
-import Presenter from "./pages/Presenter";
+import Register from "./pages/Register";
+import Booth from "./pages/Booth";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import Draw from "./pages/Draw";
@@ -16,12 +16,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/passport" element={<Passport />} />
-      <Route path="/scan" element={<Scan />} />
-      <Route path="/presenter/:boothId" element={<Presenter />} />
-      <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/booth/:boothId" element={<Booth />} />
       <Route path="/admin-login" element={<AdminLogin />} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       <Route path="/admin/draw" element={<ProtectedRoute><Draw /></ProtectedRoute>} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
     </Routes>
   </BrowserRouter>
 );
