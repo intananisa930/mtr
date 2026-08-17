@@ -7,35 +7,28 @@ const css = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #0A0612; color: #E9D5FF; font-family: 'Inter', sans-serif; min-height: 100vh; }
-
   .dot-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
   .dot-grid svg { opacity: 0.06; width: 100%; height: 100%; }
-
   .app { max-width: 480px; margin: 0 auto; padding: 24px 20px; position: relative; z-index: 1; }
-
   .back-btn { background: none; border: none; color: #6B4F8B; font-size: 22px; cursor: pointer; margin-bottom: 8px; display: block; }
   .title { font-family: 'Space Grotesk',sans-serif; font-size: 22px; font-weight: 800; color: #fff; margin: 0 0 4px; }
   .subtitle { font-size: 13px; color: #6B4F8B; margin-bottom: 6px; }
   .hint { font-size: 11px; color: #4B3B6B; text-align: center; margin-bottom: 28px; }
-
   .wheel-wrap { position: relative; width: 300px; height: 300px; margin: 0 auto 28px; }
   .wheel-pointer { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 28px solid #C4197D; filter: drop-shadow(0 0 8px rgba(196,25,125,0.8)); z-index: 2; }
   .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 44px; height: 44px; border-radius: 50%; background: #0A0612; border: 2px solid #C4197D; display: flex; align-items: center; justify-content: center; font-size: 18px; z-index: 2; }
-
-  .btn-spin { width: 100%; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#C4197D,#7C3AED); color: #fff; box-shadow: 0 4px 30px rgba(196,25,125,0.4); transition: all 0.2s; letter-spacing: 0.3px; margin-bottom: 16px; }
+  .btn-spin { width: 100%; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#C4197D,#7C3AED); color: #fff; transition: all 0.2s; letter-spacing: 0.3px; margin-bottom: 16px; }
   .btn-spin:hover { transform: translateY(-2px); }
-  .btn-spin:disabled { background: rgba(26,13,46,0.7); box-shadow: none; cursor: not-allowed; transform: none; color: #6B4F8B; }
-
-  .btn-next { width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#7C3AED,#A78BFA); color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,0.4); transition: all 0.2s; margin-bottom: 24px; }
+  .btn-spin:disabled { background: rgba(26,13,46,0.7); cursor: not-allowed; transform: none; color: #6B4F8B; }
+  .btn-next { width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#7C3AED,#A78BFA); color: #fff; transition: all 0.2s; margin-bottom: 24px; }
   .btn-next:hover { transform: translateY(-2px); }
-
   .winner-card { background: rgba(196,25,125,0.06); border: 2px solid rgba(196,25,125,0.35); border-radius: 24px; padding: 28px; text-align: center; margin-bottom: 20px; animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
   @keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .winner-emoji { font-size: 48px; display: block; margin-bottom: 12px; }
   .winner-label { font-size: 11px; font-weight: 600; color: #C4197D; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .winner-name { font-family: 'Space Grotesk',sans-serif; font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-  .winner-entries { font-size: 12px; color: #6B4F8B; }
-
+  .winner-wb { font-family: 'Space Grotesk',sans-serif; font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+  .winner-name { font-size: 14px; color: #9CA3AF; }
+  .winner-entries { font-size: 12px; color: #6B4F8B; margin-top: 6px; }
   .session-block { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.15); border-radius: 18px; padding: 18px; margin-bottom: 16px; }
   .session-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
   .session-morning { color: #F59E0B; }
@@ -43,7 +36,6 @@ const css = `
   .session-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .session-dot-morning { background: #F59E0B; }
   .session-dot-evening { background: #A78BFA; }
-
   .winner-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(124,58,237,0.08); }
   .winner-row:last-child { border-bottom: none; padding-bottom: 0; }
   .winner-num { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,#C4197D,#7C3AED); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 12px; color: #fff; flex-shrink: 0; }
@@ -51,19 +43,14 @@ const css = `
   .winner-id { font-size: 14px; font-weight: 700; color: #F3E8FF; }
   .winner-time { font-size: 11px; color: #6B4F8B; margin-top: 1px; }
   .winner-trophy { font-size: 18px; }
-
   .btn-clear { width: 100%; padding: 11px; border-radius: 10px; font-size: 12px; font-weight: 600; font-family: 'Inter',sans-serif; cursor: pointer; background: rgba(248,113,113,0.06); color: #F87171; border: 1px solid rgba(248,113,113,0.2); transition: all 0.2s; margin-top: 10px; }
-  .btn-clear:hover { background: rgba(248,113,113,0.12); }
-
   .no-eligible { text-align: center; padding: 60px 20px; color: #6B4F8B; font-size: 14px; }
   .all-done { text-align: center; padding: 40px 20px; }
   .all-done-emoji { font-size: 56px; display: block; margin-bottom: 16px; }
   .all-done-title { font-family: 'Space Grotesk',sans-serif; font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
   .all-done-sub { font-size: 13px; color: #6B4F8B; }
-
   .btn-back { width: 100%; padding: 13px; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter',sans-serif; cursor: pointer; background: rgba(26,13,46,0.6); color: #9CA3AF; border: 1px solid rgba(124,58,237,0.2); transition: all 0.2s; margin-top: 8px; }
   .btn-back:hover { border-color: rgba(196,25,125,0.4); color: #E9D5FF; }
-
   .entries-count { display: inline-flex; align-items: center; gap: 6px; background: rgba(196,25,125,0.08); border: 1px solid rgba(196,25,125,0.2); color: #F9A8D4; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 100px; margin-bottom: 20px; }
   .loading { text-align: center; padding: 40px; color: #6B4F8B; }
 `;
@@ -144,7 +131,7 @@ function SpinWheel({ entries, onWinner }) {
     <div>
       <div className="wheel-wrap">
         <div className="wheel-pointer" />
-        <canvas ref={canvasRef} width={300} height={300} style={{ borderRadius: "50%", boxShadow: "0 0 60px rgba(196,25,125,0.3), 0 0 120px rgba(124,58,237,0.2)" }} />
+        <canvas ref={canvasRef} width={300} height={300} style={{ borderRadius: "50%", boxShadow: "0 0 60px rgba(196,25,125,0.3)" }} />
         <div className="wheel-center">🎲</div>
       </div>
       <button className="btn-spin" onClick={spin} disabled={spinning || n === 0}>
@@ -180,7 +167,8 @@ export default function Draw() {
 
     const { data: participantsData } = await supabase
       .from("participants")
-      .select("staff_id, name, stamps");
+      .select("staff_id, wristband_id, display_name, name, stamps, participant_type")
+      .not("wristband_id", "is", null);
 
     const elig = (participantsData || []).filter(p => isEligible(p.stamps));
     setEligible(elig);
@@ -188,7 +176,13 @@ export default function Draw() {
     const wonIds = savedWinners.map(w => w.staff_id);
     const entries = elig
       .filter(p => !wonIds.includes(p.staff_id))
-      .flatMap(p => Array(p.stamps.length).fill({ id: p.staff_id, name: p.staff_id, entries: p.stamps.length }));
+      .flatMap(p => Array(p.stamps.length).fill({
+        id: p.staff_id,
+        wristbandId: p.wristband_id,
+        name: p.wristband_id,
+        displayName: p.display_name || p.name || "",
+        entries: p.stamps.length,
+      }));
 
     setWheelEntries(entries);
     setLoading(false);
@@ -209,6 +203,8 @@ export default function Draw() {
 
     setWinners(prev => [...prev, {
       staff_id: currentWinner.id,
+      wristband_id: currentWinner.wristbandId,
+      display_name: currentWinner.displayName,
       prize_number: prizeNumber,
       won_at: new Date().toISOString(),
     }]);
@@ -218,7 +214,7 @@ export default function Draw() {
   };
 
   const clearWinners = async () => {
-    if (!window.confirm("Are you sure you want to clear all winners? This cannot be undone.")) return;
+    if (!window.confirm("Clear all winners? This cannot be undone.")) return;
     await supabase.from("winners").delete().gte("id", 0);
     setWinners([]);
     loadData();
@@ -231,10 +227,8 @@ export default function Draw() {
   );
 
   const totalRemaining = [...new Set(wheelEntries.map(e => e.id))].length;
-
-  // Split winners into morning and evening
-  const morningWinners = winners.filter(w => getSession(w.won_at) === "morning");
-  const eveningWinners = winners.filter(w => getSession(w.won_at) === "evening");
+  const morningWinners = winners.filter(w => w.won_at && getSession(w.won_at) === "morning");
+  const eveningWinners = winners.filter(w => w.won_at && getSession(w.won_at) === "evening");
 
   if (loading) return (
     <>
@@ -265,8 +259,8 @@ export default function Draw() {
               <div key={i} className="winner-row">
                 <div className="winner-num">{i + 1}</div>
                 <div className="winner-info">
-                  <div className="winner-id">Staff ID: {w.staff_id}</div>
-                  <div className="winner-time">Prize {w.prize_number} · {new Date(w.won_at).toLocaleTimeString()}</div>
+                  <div className="winner-id">{w.wristband_id || w.staff_id}</div>
+                  {w.display_name && <div className="winner-time">{w.display_name} · {new Date(w.won_at).toLocaleTimeString()}</div>}
                 </div>
                 <div className="winner-trophy">🎁</div>
               </div>
@@ -285,8 +279,8 @@ export default function Draw() {
               <div key={i} className="winner-row">
                 <div className="winner-num">{i + 1}</div>
                 <div className="winner-info">
-                  <div className="winner-id">Staff ID: {w.staff_id}</div>
-                  <div className="winner-time">Prize {w.prize_number} · {new Date(w.won_at).toLocaleTimeString()}</div>
+                  <div className="winner-id">{w.wristband_id || w.staff_id}</div>
+                  {w.display_name && <div className="winner-time">{w.display_name} · {new Date(w.won_at).toLocaleTimeString()}</div>}
                 </div>
                 <div className="winner-trophy">🎁</div>
               </div>
@@ -294,27 +288,25 @@ export default function Draw() {
           </div>
         )}
 
-        {/* Clear button */}
         {winners.length > 0 && (
           <button className="btn-clear" onClick={clearWinners}>🗑️ Clear All Winners</button>
         )}
 
-        {/* Current winner */}
         {currentWinner && (
           <>
             <div className="winner-card" style={{ marginTop: 20 }}>
               <span className="winner-emoji">🎉</span>
               <div className="winner-label">Prize {winners.length + 1} Winner!</div>
-              <div className="winner-name">Staff ID: {currentWinner.id}</div>
+              <div className="winner-wb">{currentWinner.wristbandId}</div>
+              {currentWinner.displayName && <div className="winner-name">{currentWinner.displayName}</div>}
               <div className="winner-entries">🎖️ {currentWinner.entries} stamps collected</div>
             </div>
             <button className="btn-next" onClick={confirmWinner}>
-              ✓ Confirm Winner & Spin Again →
+              ✓ Confirm Winner and Spin Again →
             </button>
           </>
         )}
 
-        {/* Wheel */}
         {!currentWinner && (
           <>
             {wheelEntries.length > 0 ? (
