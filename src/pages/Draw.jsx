@@ -227,8 +227,10 @@ export default function Draw() {
   );
 
   const totalRemaining = [...new Set(wheelEntries.map(e => e.id))].length;
-  const morningWinners = winners.filter(w => w.won_at && getSession(w.won_at) === "morning");
-  const eveningWinners = winners.filter(w => w.won_at && getSession(w.won_at) === "evening");
+ function getSession(wonAt) {
+  const hour = new Date(wonAt).getHours();
+  return hour < 13 ? "morning" : "evening";
+}
 
   if (loading) return (
     <>
@@ -248,34 +250,13 @@ export default function Draw() {
         <p className="subtitle">{eligible.length} eligible · {winners.length} winners drawn</p>
         <p className="hint">More stamps = more entries = higher chance of winning</p>
 
-        {/* Morning Winners */}
-        {morningWinners.length > 0 && (
+        {/* Winners list — one session */}
+        {winners.length > 0 && (
           <div className="session-block">
-            <div className="session-title session-morning">
-              <div className="session-dot session-dot-morning" />
-              🌅 Morning Session Winners ({morningWinners.length})
+            <div className="session-title" style={{ color: "#C4197D" }}>
+              🏆 Winners ({winners.length})
             </div>
-            {morningWinners.map((w, i) => (
-              <div key={i} className="winner-row">
-                <div className="winner-num">{i + 1}</div>
-                <div className="winner-info">
-                  <div className="winner-id">{w.wristband_id || w.staff_id}</div>
-                  {w.display_name && <div className="winner-time">{w.display_name} · {new Date(w.won_at).toLocaleTimeString()}</div>}
-                </div>
-                <div className="winner-trophy">🎁</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Evening Winners */}
-        {eveningWinners.length > 0 && (
-          <div className="session-block">
-            <div className="session-title session-evening">
-              <div className="session-dot session-dot-evening" />
-              🌙 Evening Session Winners ({eveningWinners.length})
-            </div>
-            {eveningWinners.map((w, i) => (
+            {winners.map((w, i) => (
               <div key={i} className="winner-row">
                 <div className="winner-num">{i + 1}</div>
                 <div className="winner-info">
