@@ -43,10 +43,24 @@ const css = `
   .recent-wb { font-size: 13px; font-weight: 700; color: #C4197D; width: 44px; flex-shrink: 0; }
   .recent-name { font-size: 13px; color: #E9D5FF; flex: 1; }
   .recent-type { font-size: 11px; color: #6B4F8B; }
-  .recent-time { font-size: 10px; color: #4B3B6B; }
+  .count-box { background: rgba(196,25,125,0.06); border: 1px solid rgba(196,25,125,0.2); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .count-label { font-size: 11px; color: #6B4F8B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .count-num { font-family: 'Space Grotesk',sans-serif; font-size: 36px; font-weight: 800; color: #C4197D; }
+  .count-sub { font-size: 11px; color: #4B3B6B; margin-top: 2px; }
 `;
 
+const COUNTER_PIN = "1234";
+
+const DotGrid = () => (
+  <div className="dot-grid">
+    <svg><defs><pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#C4197D" /></pattern></defs><rect width="100%" height="100%" fill="url(#dots)" /></svg>
+  </div>
+);
+
 export default function Register() {
+  const [unlocked, setUnlocked] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [pinError, setPinError] = useState("");
   const [name, setName] = useState("");
   const [type, setType] = useState("staff");
   const [loading, setLoading] = useState(false);
@@ -63,7 +77,6 @@ export default function Register() {
       .not("wristband_id", "is", null)
       .order("wristband_id", { ascending: false })
       .limit(1);
-
     if (data && data.length > 0) {
       const last = data[0].wristband_id;
       const num = parseInt(last.replace("W", "")) + 1;
@@ -80,25 +93,33 @@ export default function Register() {
       .not("wristband_id", "is", null)
       .order("registered_at", { ascending: false })
       .limit(5);
-
     setRecentList(data || []);
     setTotalCount(count || 0);
   };
 
   useEffect(() => {
-    getNextWristband();
-    loadRecent();
-  }, []);
+    if (unlocked) {
+      getNextWristband();
+      loadRecent();
+    }
+  }, [unlocked]);
+
+  const handlePinUnlock = () => {
+    if (pinInput === COUNTER_PIN) {
+      setUnlocked(true);
+    } else {
+      setPinError("Incorrect PIN. Please try again.");
+      setPinInput("");
+    }
+  };
 
   const handleRegister = async () => {
     if (!name.trim()) { setError("Please enter participant name."); return; }
     setLoading(true);
     setError(null);
-
     try {
       const wristbandId = nextWristband;
       const staffId = `${type.toUpperCase()}-${wristbandId}`;
-
       const { error: insertError } = await supabase
         .from("participants")
         .insert({
@@ -110,15 +131,12 @@ export default function Register() {
           eligible: false,
           name: name.trim(),
         });
-
       if (insertError) throw insertError;
-
       setSuccess({ wristbandId, name: name.trim(), type });
       setName("");
       setType("staff");
       await getNextWristband();
       await loadRecent();
-
     } catch (err) {
       setError("Registration failed. Please try again.");
       console.error(err);
@@ -132,25 +150,54 @@ export default function Register() {
     setError(null);
   };
 
+  // PIN screen
+  if (!unlocked) return (
+    <>
+      <style>{css}</style>
+      <DotGrid />
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "40px 20px", position: "relative", zIndex: 1, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+        <div className="logo">MIMOS</div>
+        <h2 className="page-title" style={{ textAlign: "center", marginBottom: 8 }}>Counter Staff Access</h2>
+        <p className="page-sub" style={{ textAlign: "center", marginBottom: 28 }}>Enter the counter PIN to continue</p>
+        <div className="card" style={{ width: "100%" }}>
+          <label className="flabel">Counter PIN</label>
+          <input
+            className="finput"
+            type="password"
+            placeholder="Enter PIN"
+            value={pinInput}
+            onChange={e => { setPinInput(e.target.value); setPinError(""); }}
+            onKeyDown={e => e.key === "Enter" && handlePinUnlock()}
+          />
+          {pinError && <div className="err">{pinError}</div>}
+          <button className="btn-primary" onClick={handlePinUnlock}>
+            Unlock →
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
+  // Registration screen
   return (
     <>
       <style>{css}</style>
-      <div className="dot-grid">
-        <svg><defs><pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#C4197D" /></pattern></defs><rect width="100%" height="100%" fill="url(#dots)" /></svg>
-      </div>
+      <DotGrid />
       <div className="wrap">
         <div className="logo">MIMOS</div>
         <h2 className="page-title">Registration Counter</h2>
         <p className="page-sub">MTR Innovation Passport Challenge 2026</p>
 
-        <div className="wb-box">
+        {/* Prominent participant count */}
+        <div className="count-box">
           <div>
+            <div className="count-label">Registered today</div>
+            <div className="count-num">{totalCount}</div>
+            <div className="count-sub">participants</div>
+          </div>
+          <div style={{ textAlign: "right" }}>
             <div className="wb-label">Next wristband</div>
             <div className="wb-num">{nextWristband || "..."}</div>
-          </div>
-          <div className="wb-count">
-            <div style={{ fontSize: 22, fontWeight: 700, color: "#E9D5FF", fontFamily: "'Space Grotesk',sans-serif" }}>{totalCount}</div>
-            <div>registered</div>
           </div>
         </div>
 
@@ -165,9 +212,7 @@ export default function Register() {
                 Hand wristband <strong style={{ color: "#C4197D" }}>{success.wristbandId}</strong> to participant
               </div>
             </div>
-            <button className="btn-primary" onClick={handleNext}>
-              Register Next Participant →
-            </button>
+            <button className="btn-primary" onClick={handleNext}>Register Next Participant →</button>
           </>
         ) : (
           <div className="card">
@@ -181,12 +226,8 @@ export default function Register() {
             />
             <label className="flabel">Participant Type</label>
             <div className="type-row">
-              <button className={`type-btn ${type === "staff" ? "sel" : ""}`} onClick={() => setType("staff")}>
-                MIMOS Staff
-              </button>
-              <button className={`type-btn ${type === "guest" ? "sel" : ""}`} onClick={() => setType("guest")}>
-                External Guest
-              </button>
+              <button className={`type-btn ${type === "staff" ? "sel" : ""}`} onClick={() => setType("staff")}>MIMOS Staff</button>
+              <button className={`type-btn ${type === "guest" ? "sel" : ""}`} onClick={() => setType("guest")}>External Guest</button>
             </div>
             {error && <div className="err">{error}</div>}
             <button className="btn-primary" onClick={handleRegister} disabled={loading}>
@@ -211,6 +252,11 @@ export default function Register() {
             </div>
           </>
         )}
+
+        <div className="divider" />
+        <button className="btn-ghost" onClick={() => { setUnlocked(false); setPinInput(""); }}>
+          🔒 Lock Counter
+        </button>
       </div>
     </>
   );
