@@ -100,7 +100,7 @@ export default function Landing() {
         .single();
 
       if (!data) {
-        setError("Wristband ID not found. Please register at the counter first.");
+        setError(`Wristband "${wristbandId.trim().toUpperCase()}" not found. Please check your wristband ID or visit the registration counter.`);
         setLoading(false);
         return;
       }
@@ -111,7 +111,7 @@ export default function Landing() {
       navigate(`/passport?id=${data.wristband_id}`);
 
     } catch (err) {
-      setError("Wristband ID not found. Please register at the counter first.");
+      setError(`Wristband "${wristbandId.trim().toUpperCase()}" not found. Please check your wristband ID or visit the registration counter.`);
     } finally {
       setLoading(false);
     }
