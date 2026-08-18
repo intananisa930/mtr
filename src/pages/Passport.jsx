@@ -196,7 +196,7 @@ export default function Passport() {
                 <div className="section-title">Stamps Collected</div>
                 <div className="prog-num">{stamps.length}<span> / 38</span></div>
                 <div className={`elig-badge ${eligible ? "elig-yes" : "elig-no"}`}>
-                  {eligible ? "✓ Eligible for Lucky Draw" : "Visit all 6 domains + 10 stamps to qualify"}
+                  {eligible ? "✓ Eligible for Lucky Draw" : "Visit at least 1 booth in each domain and collect 10 stamps"}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
