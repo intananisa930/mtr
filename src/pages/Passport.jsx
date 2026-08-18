@@ -209,7 +209,25 @@ export default function Passport() {
               <div className="bar-fill" style={{ width: `${(stamps.length / 38) * 100}%` }} />
             </div>
           </div>
-
+          {stamps.length === 0 && (
+            <div style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "#7C3AED", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>How to collect stamps</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {[
+                  { icon: "🏃", text: "Visit any booth across the 6 domains below" },
+                  { icon: "🎯", text: "Complete the challenge at the booth" },
+                  { icon: "📷", text: "Ask the exhibitor to scan your wristband QR" },
+                  { icon: "🎰", text: "Visit all 6 domains + 10 stamps = eligible for lucky draw!" },
+                ].map((s, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <span style={{ fontSize: 16, flexShrink: 0 }}>{s.icon}</span>
+                    <span style={{ fontSize: 12, color: "#9CA3AF", lineHeight: 1.5 }}>{s.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
           <div className="section-title">6 Solution Domains</div>
           {DOMAINS.map(domain => {
             const ds = stamps.filter(s => domain.techs.some(t => t.id === s));
