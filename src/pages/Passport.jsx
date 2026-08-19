@@ -26,6 +26,7 @@ const css = `
   .elig-no { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); color: #7C3AED; }
   .bar-bg { height: 5px; background: rgba(124,58,237,0.2); border-radius: 100px; overflow: hidden; margin-top: 16px; }
   .bar-fill { height: 100%; background: linear-gradient(90deg,#C4197D,#7C3AED,#A78BFA); border-radius: 100px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+  .rank-row { margin-top: 10px; font-size: 12px; color: #6B4F8B; text-align: center; }
   .section-title { font-size: 11px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
   .type-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 100px; margin-bottom: 16px; }
   .type-staff { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: #60A5FA; }
@@ -33,6 +34,7 @@ const css = `
   .domain-card { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.15); border-radius: 16px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s; cursor: pointer; backdrop-filter: blur(4px); }
   .domain-card:hover { border-color: rgba(196,25,125,0.3); }
   .domain-card.open { border-color: rgba(196,25,125,0.4); }
+  .domain-card.visited { border-color: rgba(16,185,129,0.25); background: rgba(16,185,129,0.04); }
   .domain-hdr { display: flex; align-items: center; gap: 12px; padding: 16px; }
   .domain-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .domain-name { font-size: 14px; font-weight: 600; color: #F3E8FF; }
@@ -76,7 +78,7 @@ export default function Passport() {
   const [notFound, setNotFound] = useState(false);
   const [rank, setRank] = useState(null);
   const [totalParticipants, setTotalParticipants] = useState(0);
-  const [navigate] = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const wristbandId = searchParams.get("id")?.toUpperCase() ||
@@ -94,32 +96,32 @@ export default function Passport() {
       .select("*")
       .eq("wristband_id", wristbandId)
       .single();
-        // Load rank
-    const { data: allParticipants } = await supabase
-      .from("participants")
-      .select("staff_id, stamps")
-      .not("wristband_id", "is", null);
-
-    if (allParticipants) {
-      const sorted = allParticipants.sort((a, b) => b.stamps.length - a.stamps.length);
-      const myRank = sorted.findIndex(p => p.staff_id === data.staff_id) + 1;
-      setRank(myRank);
-      setTotalParticipants(allParticipants.length);
-    }
 
     if (!data) { setNotFound(true); setLoading(false); return; }
 
     setParticipant(data);
     setStamps(data.stamps || []);
     setEligible(data.eligible || false);
-    setLoading(false);
 
-    // Save to localStorage
     localStorage.setItem("wristbandId", wristbandId);
     localStorage.setItem("staffId", data.staff_id);
+
+    // Load rank
+    const { data: allParticipants } = await supabase
+      .from("participants")
+      .select("staff_id, stamps")
+      .not("wristband_id", "is", null);
+
+    if (allParticipants) {
+      const sorted = [...allParticipants].sort((a, b) => b.stamps.length - a.stamps.length);
+      const myRank = sorted.findIndex(p => p.staff_id === data.staff_id) + 1;
+      setRank(myRank);
+      setTotalParticipants(allParticipants.length);
+    }
+
+    setLoading(false);
   };
 
-  // Real-time updates
   useEffect(() => {
     if (!wristbandId) return;
     const channel = supabase
@@ -223,11 +225,12 @@ export default function Passport() {
               <div className="bar-fill" style={{ width: `${(stamps.length / 38) * 100}%` }} />
             </div>
             {rank && totalParticipants > 1 && (
-              <div style={{ marginTop: 10, fontSize: 12, color: "#6B4F8B", textAlign: "center" }}>
+              <div className="rank-row">
                 🏅 You are ranked <strong style={{ color: "#C4197D" }}>#{rank}</strong> out of <strong style={{ color: "#E9D5FF" }}>{totalParticipants}</strong> participants
               </div>
             )}
           </div>
+
           {stamps.length === 0 && (
             <div style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: "#7C3AED", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>How to collect stamps</div>
@@ -246,26 +249,35 @@ export default function Passport() {
               </div>
             </div>
           )}
-          
+
           <div className="section-title">6 Solution Domains</div>
           {DOMAINS.map(domain => {
             const ds = stamps.filter(s => domain.techs.some(t => t.id === s));
             const isOpen = expandedDomain === domain.id;
+            const isVisited = ds.length > 0;
             return (
-              <div key={domain.id} className={`domain-card ${isOpen ? "open" : ""}`}>
+              <div key={domain.id} className={`domain-card ${isOpen ? "open" : ""} ${isVisited ? "visited" : ""}`}>
                 <div className="domain-hdr" onClick={() => setExpandedDomain(isOpen ? null : domain.id)}>
-                  <div className="domain-icon" style={{ background: domain.colorBg, border: `1px solid ${domain.colorBorder}` }}>
+                  <div className="domain-icon" style={{
+                    background: isVisited ? "rgba(16,185,129,0.15)" : domain.colorBg,
+                    border: `1px solid ${isVisited ? "rgba(16,185,129,0.3)" : domain.colorBorder}`
+                  }}>
                     {domain.icon}
                   </div>
                   <div style={{ flex: 1 }}>
                     <div className="domain-name">{domain.name}</div>
-                    <div className="domain-prog" style={{ color: ds.length > 0 ? domain.color : "#4B3B6B" }}>
+                    <div className="domain-prog" style={{ color: isVisited ? "#10B981" : "#4B3B6B" }}>
                       {ds.length}/{domain.techs.length} stamps
-                      {ds.length > 0 && <span style={{ marginLeft: 6, fontSize: 10 }}>✓ visited</span>}
+                      {isVisited && <span style={{ marginLeft: 6, fontSize: 10 }}>✓ visited</span>}
+                      {!isVisited && <span style={{ marginLeft: 6, fontSize: 10, color: "#4B3B6B" }}>· not visited yet</span>}
                     </div>
                     <div className="stamp-dots">
                       {domain.techs.map(t => (
-                        <div key={t.id} className="stamp-dot" style={{ background: stamps.includes(t.id) ? domain.color : "rgba(124,58,237,0.15)" }} />
+                        <div key={t.id} className="stamp-dot" style={{
+                          background: stamps.includes(t.id)
+                            ? "#10B981"
+                            : isVisited ? "rgba(16,185,129,0.2)" : "rgba(124,58,237,0.15)"
+                        }} />
                       ))}
                     </div>
                   </div>
