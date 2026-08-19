@@ -86,6 +86,9 @@ export default function Register() {
     }
   };
 
+  const [staffCount, setStaffCount] = useState(0);
+  const [guestCount, setGuestCount] = useState(0);
+
   const loadRecent = async () => {
     const { data, count } = await supabase
       .from("participants")
@@ -95,6 +98,23 @@ export default function Register() {
       .limit(5);
     setRecentList(data || []);
     setTotalCount(count || 0);
+    setStaffCount((data || []).filter(p => p.participant_type === "staff").length);
+    setGuestCount((data || []).filter(p => p.participant_type === "guest").length);
+
+    const { count: sCount } = await supabase
+      .from("participants")
+      .select("*", { count: "exact", head: true })
+      .eq("participant_type", "staff")
+      .not("wristband_id", "is", null);
+
+    const { count: gCount } = await supabase
+      .from("participants")
+      .select("*", { count: "exact", head: true })
+      .eq("participant_type", "guest")
+      .not("wristband_id", "is", null);
+
+    setStaffCount(sCount || 0);
+    setGuestCount(gCount || 0);
   };
 
   useEffect(() => {
@@ -191,9 +211,12 @@ export default function Register() {
         {/* Prominent participant count */}
         <div className="count-box">
           <div>
-            <div className="count-label">Registered today</div>
+            <div className="count-label">Total registered</div>
             <div className="count-num">{totalCount}</div>
-            <div className="count-sub">participants</div>
+            <div style={{ display: "flex", gap: 12, marginTop: 6 }}>
+              <div style={{ fontSize: 11, color: "#60A5FA" }}>Staff: <strong>{staffCount}</strong></div>
+              <div style={{ fontSize: 11, color: "#F59E0B" }}>Guests: <strong>{guestCount}</strong></div>
+            </div>
           </div>
           <div style={{ textAlign: "right" }}>
             <div className="wb-label">Next wristband</div>
