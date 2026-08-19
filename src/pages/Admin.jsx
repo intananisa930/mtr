@@ -34,8 +34,8 @@ const css = `
   .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(124,58,237,0.2); background: rgba(26,13,46,0.6); color: #9CA3AF; font-family: 'Inter',sans-serif; transition: all 0.15s; }
   .filter-btn.active { border-color: #C4197D; color: #C4197D; background: rgba(196,25,125,0.1); }
   .table-wrap { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.15); border-radius: 18px; overflow: hidden; margin-bottom: 20px; }
-  .t-head { display: grid; grid-template-columns: 0.7fr 0.7fr 1.5fr 0.8fr 0.8fr 0.8fr 1.2fr; padding: 12px 16px; border-bottom: 1px solid rgba(124,58,237,0.1); font-size: 10px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 0.5px; }
-  .t-row { display: grid; grid-template-columns: 0.7fr 0.7fr 1.5fr 0.8fr 0.8fr 0.8fr 1.2fr; padding: 12px 16px; border-bottom: 1px solid rgba(10,6,18,0.5); font-size: 12px; align-items: center; }
+  .t-head { display: grid; grid-template-columns: 0.7fr 0.7fr 1.5fr 0.8fr 0.8fr 0.8fr 1.2fr 0.4fr;
+  .t-row { display: grid; grid-template-columns: 0.7fr 0.7fr 1.5fr 0.8fr 0.8fr 0.8fr 1.2fr 0.4fr;
   .t-row:last-child { border-bottom: none; }
   .pill { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; }
   .pill-g { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: #10B981; }
@@ -95,6 +95,13 @@ export default function Admin() {
   });
   const maxCount = Math.max(...Object.values(boothCounts), 1);
 
+  const handleDelete = async (staffId, wristbandId) => {
+    if (!window.confirm(`Delete ${wristbandId}? This cannot be undone.`)) return;
+    await supabase.from("stamp_log").delete().eq("staff_id", staffId);
+    await supabase.from("participants").delete().eq("staff_id", staffId);
+    load();
+  };
+  
   const exportToExcel = () => {
     const headers = ["Wristband ID", "Name", "Type", "Stamps", "Eligible", "Lucky Draw Entries", "Last Updated"];
     const rows = allParticipants.map(p => [
@@ -203,6 +210,7 @@ export default function Admin() {
             <div>Entries</div>
             <div>Status</div>
             <div>Last Active</div>
+            <div></div>
           </div>
           {loading ? (
             <div className="loading">Loading participants...</div>
@@ -226,7 +234,12 @@ export default function Admin() {
                     <span className={`pill ${elig ? "pill-g" : "pill-p"}`}>{elig ? "✓ Eligible" : "In Progress"}</span>
                   </div>
                   <div style={{ color: "#6B4F8B" }}>{new Date(p.last_updated).toLocaleTimeString()}</div>
-                </div>
+                    <div>
+                      <button onClick={() => handleDelete(p.staff_id, p.wristband_id)} style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", color: "#F87171", borderRadius: 6, padding: "4px 8px", fontSize: 11, cursor: "pointer", fontFamily: "Inter,sans-serif" }}>
+                      🗑️
+                      </button>
+                    </div>
+                  </div>
               );
             })
           )}
