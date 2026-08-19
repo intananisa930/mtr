@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Html5QrcodeScanner } from "html5-qrcode";
 import { supabase } from "../supabase";
 import { isEligible } from "../data";
 
@@ -50,6 +49,15 @@ const css = `
   .result-title { font-family: 'Space Grotesk',sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
   .result-wb { font-size: 28px; font-weight: 800; color: #C4197D; font-family: 'Space Grotesk',sans-serif; }
   .result-name { font-size: 14px; color: #9CA3AF; margin-top: 4px; margin-bottom: 20px; }
+  .visitors-section { margin-top: 8px; }
+  .visitor-item { display: flex; align-items: center; gap: 10px; background: rgba(26,13,46,0.5); border: 1px solid rgba(124,58,237,0.1); border-radius: 10px; padding: 8px 12px; margin-bottom: 6px; }
+  .visitor-num { font-size: 10px; color: #4B3B6B; width: 20px; flex-shrink: 0; }
+  .visitor-wb { font-size: 12px; font-weight: 700; color: #C4197D; width: 44px; flex-shrink: 0; }
+  .visitor-name { font-size: 12px; color: #E9D5FF; flex: 1; }
+  .visitor-time { font-size: 10px; color: #4B3B6B; }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(124,58,237,0.2); background: rgba(26,13,46,0.6); color: #9CA3AF; font-family: 'Inter',sans-serif; transition: all 0.15s; text-align: center; }
+  .tab-btn.active { border-color: #C4197D; color: #C4197D; background: rgba(196,25,125,0.1); }
 `;
 
 export default function Booth() {
@@ -63,6 +71,8 @@ export default function Booth() {
   const [scanError, setScanError] = useState("");
   const [scanHistory, setScanHistory] = useState([]);
   const [stampCount, setStampCount] = useState(0);
+  const [visitors, setVisitors] = useState([]);
+  const [activeTab, setActiveTab] = useState("scanner");
   const scannerRef = useRef(null);
 
   useEffect(() => {
@@ -77,23 +87,48 @@ export default function Booth() {
     if (boothId) loadBooth();
   }, [boothId]);
 
+  const loadVisitors = async () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const { data } = await supabase
+      .from("stamp_log")
+      .select("staff_id, scanned_at, participants(wristband_id, display_name)")
+      .eq("booth_id", boothId)
+      .gte("scanned_at", today.toISOString())
+      .order("scanned_at", { ascending: false });
+
+    setVisitors(data || []);
+    setStampCount(data?.length || 0);
+  };
+
+  useEffect(() => {
+    if (unlocked) loadVisitors();
+  }, [unlocked]);
+
   useEffect(() => {
     if (!scanning) return;
-    const scanner = new Html5QrcodeScanner(
-      "qr-reader",
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      false
-    );
-    scanner.render(
-      async (rawText) => {
-        await scanner.clear();
-        setScanning(false);
-        await handleScan(rawText);
-      },
-      () => {}
-    );
-    scannerRef.current = scanner;
-    return () => { try { scanner.clear(); } catch {} };
+
+    const loadScanner = async () => {
+      const { Html5QrcodeScanner } = await import("html5-qrcode");
+      const scanner = new Html5QrcodeScanner(
+        "qr-reader",
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false
+      );
+      scanner.render(
+        async (rawText) => {
+          await scanner.clear();
+          setScanning(false);
+          await handleScan(rawText);
+        },
+        () => {}
+      );
+      scannerRef.current = scanner;
+    };
+
+    loadScanner();
+    return () => { try { scannerRef.current?.clear(); } catch {} };
   }, [scanning]);
 
   const handlePinInput = (num) => {
@@ -121,14 +156,12 @@ export default function Booth() {
   const handleScan = async (rawText) => {
     setScanError("");
     try {
-      // Extract wristband ID from URL or plain text
       let wristbandId = rawText;
       if (rawText.includes("?id=")) {
         wristbandId = rawText.split("?id=")[1].toUpperCase();
       }
       wristbandId = wristbandId.trim().toUpperCase();
 
-      // Get participant
       const { data: participant } = await supabase
         .from("participants")
         .select("*")
@@ -140,23 +173,17 @@ export default function Booth() {
         return;
       }
 
-      // Check already stamped
       if (participant.stamps.includes(boothId)) {
         setScanError(`${wristbandId} already has a stamp for this booth.`);
         return;
       }
 
-      // Add stamp
       const newStamps = [...participant.stamps, boothId];
       const eligible = isEligible(newStamps);
 
       await supabase
         .from("participants")
-        .update({
-          stamps: newStamps,
-          eligible,
-          last_updated: new Date().toISOString(),
-        })
+        .update({ stamps: newStamps, eligible, last_updated: new Date().toISOString() })
         .eq("wristband_id", wristbandId);
 
       await supabase.from("stamp_log").insert({
@@ -178,6 +205,7 @@ export default function Booth() {
       }, ...prev.slice(0, 4)]);
 
       setStampCount(prev => prev + 1);
+      await loadVisitors();
 
     } catch (err) {
       setScanError("Could not read QR. Please try again.");
@@ -191,7 +219,6 @@ export default function Booth() {
     </div>
   );
 
-  // PIN entry screen
   if (!unlocked) return (
     <>
       <style>{css}</style>
@@ -227,14 +254,11 @@ export default function Booth() {
             Unlock Booth
           </button>
         </div>
-        <div style={{ textAlign: "center", fontSize: 12, color: "#4B3B6B" }}>
-          Booth ID: {boothId}
-        </div>
+        <div style={{ textAlign: "center", fontSize: 12, color: "#4B3B6B" }}>Booth ID: {boothId}</div>
       </div>
     </>
   );
 
-  // Scan result screen
   if (scanResult) return (
     <>
       <style>{css}</style>
@@ -262,7 +286,6 @@ export default function Booth() {
     </>
   );
 
-  // Main scanner screen
   return (
     <>
       <style>{css}</style>
@@ -278,42 +301,71 @@ export default function Booth() {
         )}
 
         <div className="stamp-count">
-          <div className="sc-label">Stamps awarded this session</div>
+          <div className="sc-label">Visitors today</div>
           <div className="sc-num">{stampCount}</div>
         </div>
 
-        {scanError && <div className="err">{scanError}</div>}
-
-        {scanning ? (
-          <>
-            <div className="qr-wrap">
-              <div id="qr-reader" />
-            </div>
-            <button className="btn-ghost" onClick={() => { setScanning(false); setScanError(""); }}>
-              Cancel
-            </button>
-          </>
-        ) : (
-          <button className="btn-primary" onClick={() => { setScanResult(null); setScanError(""); setScanning(true); }}>
-            📷 Scan Participant Wristband
+        <div className="tab-row">
+          <button className={`tab-btn ${activeTab === "scanner" ? "active" : ""}`} onClick={() => setActiveTab("scanner")}>
+            📷 Scanner
           </button>
+          <button className={`tab-btn ${activeTab === "visitors" ? "active" : ""}`} onClick={() => { setActiveTab("visitors"); loadVisitors(); }}>
+            👥 Visitors ({stampCount})
+          </button>
+        </div>
+
+        {activeTab === "scanner" && (
+          <>
+            {scanError && <div className="err">{scanError}</div>}
+            {scanning ? (
+              <>
+                <div className="qr-wrap"><div id="qr-reader" /></div>
+                <button className="btn-ghost" onClick={() => { setScanning(false); setScanError(""); }}>Cancel</button>
+              </>
+            ) : (
+              <button className="btn-primary" onClick={() => { setScanResult(null); setScanError(""); setScanning(true); }}>
+                📷 Scan Participant Wristband
+              </button>
+            )}
+
+            {scanHistory.length > 0 && (
+              <>
+                <div className="divider" />
+                <div className="section-title">Last scanned</div>
+                <div className="scan-list">
+                  {scanHistory.map((s, i) => (
+                    <div key={i} className="scan-item">
+                      <div className="scan-check">✓</div>
+                      <div className="scan-wb">{s.wristbandId}</div>
+                      <div className="scan-name">{s.name || "—"}</div>
+                      <div className="scan-time">{s.time}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         )}
 
-        {scanHistory.length > 0 && (
-          <>
-            <div className="divider" />
-            <div className="section-title">Last scanned</div>
-            <div className="scan-list">
-              {scanHistory.map((s, i) => (
-                <div key={i} className="scan-item">
-                  <div className="scan-check">✓</div>
-                  <div className="scan-wb">{s.wristbandId}</div>
-                  <div className="scan-name">{s.name || "—"}</div>
-                  <div className="scan-time">{s.time}</div>
+        {activeTab === "visitors" && (
+          <div className="visitors-section">
+            <div className="section-title">All visitors today ({visitors.length})</div>
+            {visitors.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px 20px", color: "#4B3B6B", fontSize: 14 }}>
+                No visitors yet today
+              </div>
+            ) : (
+              visitors.map((v, i) => (
+                <div key={i} className="visitor-item">
+                  <div className="visitor-num">#{i + 1}</div>
+                  <div className="visitor-wb">{v.participants?.wristband_id || "—"}</div>
+                  <div className="visitor-name">{v.participants?.display_name || "—"}</div>
+                  <div className="visitor-time">{new Date(v.scanned_at).toLocaleTimeString()}</div>
                 </div>
-              ))}
-            </div>
-          </>
+              ))
+            )}
+            <button className="btn-ghost" style={{ marginTop: 12 }} onClick={loadVisitors}>🔄 Refresh</button>
+          </div>
         )}
 
         <div className="divider" />
