@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
-import { isEligible } from "../data";
+import { DOMAINS, isEligible } from "../data";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap');
@@ -34,14 +34,16 @@ const css = `
   .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(124,58,237,0.2); background: rgba(26,13,46,0.6); color: #9CA3AF; font-family: 'Inter',sans-serif; transition: all 0.15s; }
   .filter-btn.active { border-color: #C4197D; color: #C4197D; background: rgba(196,25,125,0.1); }
   .table-wrap { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.15); border-radius: 18px; overflow: hidden; margin-bottom: 20px; }
-  .t-head { display: grid; grid-template-columns: 0.7fr 0.7fr 1.5fr 0.8fr 0.8fr 0.8fr 1.2fr 0.4fr;
-  .t-row { display: grid; grid-template-columns: 0.7fr 0.7fr 1.5fr 0.8fr 0.8fr 0.8fr 1.2fr 0.4fr;
+  .t-head { display: grid; grid-template-columns: 0.7fr 0.7fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 0.4fr; padding: 12px 16px; border-bottom: 1px solid rgba(124,58,237,0.1); font-size: 10px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 0.5px; }
+  .t-row { display: grid; grid-template-columns: 0.7fr 0.7fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 0.4fr; padding: 12px 16px; border-bottom: 1px solid rgba(10,6,18,0.5); font-size: 12px; align-items: center; }
   .t-row:last-child { border-bottom: none; }
   .pill { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; }
   .pill-g { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: #10B981; }
   .pill-p { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); color: #A78BFA; }
   .pill-staff { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); color: #60A5FA; font-size: 9px; padding: 2px 7px; }
   .pill-guest { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: #F59E0B; font-size: 9px; padding: 2px 7px; }
+  .btn-delete { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); color: #F87171; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-family: 'Inter',sans-serif; transition: all 0.15s; }
+  .btn-delete:hover { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.4); }
   .loading { text-align: center; padding: 40px; color: #6B4F8B; }
   .booth-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 24px; align-items: start; }
   .booth-card { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.12); border-radius: 14px; padding: 14px; }
@@ -52,8 +54,6 @@ const css = `
   .booth-bar-bg { flex: 1; height: 3px; background: rgba(124,58,237,0.1); border-radius: 100px; overflow: hidden; }
   .booth-bar-fill { height: 100%; background: linear-gradient(90deg,#C4197D,#7C3AED); border-radius: 100px; }
 `;
-
-import { DOMAINS } from "../data";
 
 export default function Admin() {
   const [participants, setParticipants] = useState([]);
@@ -80,28 +80,13 @@ export default function Admin() {
     return () => supabase.removeChannel(channel);
   }, []);
 
-  const allParticipants = participants.filter(p => p.wristband_id);
-  const filtered = filter === "all" ? allParticipants
-    : allParticipants.filter(p => p.participant_type === filter);
-
-  const eligible = allParticipants.filter(p => isEligible(p.stamps));
-  const staffCount = allParticipants.filter(p => p.participant_type === "staff").length;
-  const guestCount = allParticipants.filter(p => p.participant_type === "guest").length;
-  const totalEntries = eligible.reduce((sum, p) => sum + p.stamps.length, 0);
-
-  const boothCounts = {};
-  allParticipants.forEach(p => {
-    p.stamps.forEach(s => { boothCounts[s] = (boothCounts[s] || 0) + 1; });
-  });
-  const maxCount = Math.max(...Object.values(boothCounts), 1);
-
   const handleDelete = async (staffId, wristbandId) => {
     if (!window.confirm(`Delete ${wristbandId}? This cannot be undone.`)) return;
     await supabase.from("stamp_log").delete().eq("staff_id", staffId);
     await supabase.from("participants").delete().eq("staff_id", staffId);
     load();
   };
-  
+
   const exportToExcel = () => {
     const headers = ["Wristband ID", "Name", "Type", "Stamps", "Eligible", "Lucky Draw Entries", "Last Updated"];
     const rows = allParticipants.map(p => [
@@ -123,6 +108,19 @@ export default function Admin() {
     URL.revokeObjectURL(url);
   };
 
+  const allParticipants = participants.filter(p => p.wristband_id);
+  const filtered = filter === "all" ? allParticipants
+    : allParticipants.filter(p => p.participant_type === filter);
+  const eligible = allParticipants.filter(p => isEligible(p.stamps));
+  const staffCount = allParticipants.filter(p => p.participant_type === "staff").length;
+  const guestCount = allParticipants.filter(p => p.participant_type === "guest").length;
+
+  const boothCounts = {};
+  allParticipants.forEach(p => {
+    p.stamps.forEach(s => { boothCounts[s] = (boothCounts[s] || 0) + 1; });
+  });
+  const maxCount = Math.max(...Object.values(boothCounts), 1);
+
   return (
     <>
       <style>{css}</style>
@@ -139,7 +137,6 @@ export default function Admin() {
           <button className="btn-logout" onClick={() => { sessionStorage.clear(); navigate("/admin-login"); }}>Logout</button>
         </div>
 
-        {/* Stats */}
         <div className="stats">
           {[
             { num: allParticipants.length, label: "Total", color: "#fff" },
@@ -154,7 +151,6 @@ export default function Admin() {
           ))}
         </div>
 
-        {/* Buttons */}
         <div className="btn-row">
           <button className="btn-draw" onClick={() => navigate("/admin/draw")}>🎰 Lucky Draw</button>
           <button className="btn-leaderboard" onClick={() => window.open("/leaderboard", "_blank")}>🏆 Leaderboard</button>
@@ -162,14 +158,11 @@ export default function Admin() {
           <button className="btn-refresh" onClick={load}>🔄</button>
         </div>
 
-        {/* Booth stats */}
         <div className="section-title">Booth Visit Stats</div>
         <div className="booth-grid">
-          {DOMAINS.map(domain => (
+          {[...DOMAINS].sort((a, b) => b.techs.length - a.techs.length).map(domain => (
             <div key={domain.id} className="booth-card">
-              <div className="booth-domain">
-                <span>{domain.icon}</span>{domain.name}
-              </div>
+              <div className="booth-domain"><span>{domain.icon}</span>{domain.name}</div>
               {domain.techs.map(tech => {
                 const count = boothCounts[tech.id] || 0;
                 return (
@@ -186,7 +179,6 @@ export default function Admin() {
           ))}
         </div>
 
-        {/* Filter */}
         <div className="section-title">Participants</div>
         <div className="filter-row">
           {[
@@ -200,7 +192,6 @@ export default function Admin() {
           ))}
         </div>
 
-        {/* Table */}
         <div className="table-wrap">
           <div className="t-head">
             <div>Wristband</div>
@@ -222,24 +213,16 @@ export default function Admin() {
               return (
                 <div key={p.staff_id} className="t-row">
                   <div style={{ color: "#C4197D", fontWeight: 700, fontSize: 12 }}>{p.wristband_id || "—"}</div>
-                  <div>
-                    <span className={p.participant_type === "guest" ? "pill pill-guest" : "pill pill-staff"}>
-                      {p.participant_type === "guest" ? "Guest" : "Staff"}
-                    </span>
-                  </div>
+                  <div><span className={p.participant_type === "guest" ? "pill pill-guest" : "pill pill-staff"}>{p.participant_type === "guest" ? "Guest" : "Staff"}</span></div>
                   <div style={{ color: "#E9D5FF", fontWeight: 500 }}>{p.display_name || p.name || "—"}</div>
                   <div style={{ color: elig ? "#10B981" : "#E9D5FF" }}>{p.stamps.length}</div>
                   <div style={{ color: "#C4197D", fontWeight: 600 }}>{elig ? p.stamps.length : 0}</div>
-                  <div>
-                    <span className={`pill ${elig ? "pill-g" : "pill-p"}`}>{elig ? "✓ Eligible" : "In Progress"}</span>
-                  </div>
+                  <div><span className={`pill ${elig ? "pill-g" : "pill-p"}`}>{elig ? "✓ Eligible" : "In Progress"}</span></div>
                   <div style={{ color: "#6B4F8B" }}>{new Date(p.last_updated).toLocaleTimeString()}</div>
-                    <div>
-                      <button onClick={() => handleDelete(p.staff_id, p.wristband_id)} style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", color: "#F87171", borderRadius: 6, padding: "4px 8px", fontSize: 11, cursor: "pointer", fontFamily: "Inter,sans-serif" }}>
-                      🗑️
-                      </button>
-                    </div>
+                  <div>
+                    <button className="btn-delete" onClick={() => handleDelete(p.staff_id, p.wristband_id)}>🗑️</button>
                   </div>
+                </div>
               );
             })
           )}
