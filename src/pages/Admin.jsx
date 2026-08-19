@@ -45,13 +45,13 @@ const css = `
   .btn-delete { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); color: #F87171; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-family: 'Inter',sans-serif; transition: all 0.15s; }
   .btn-delete:hover { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.4); }
   .loading { text-align: center; padding: 40px; color: #6B4F8B; }
-  .booth-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 24px; align-items: start; }
-  .booth-card { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.12); border-radius: 14px; padding: 14px; }
-  .booth-domain { font-size: 11px; font-weight: 600; color: #6B4F8B; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
-  .booth-tech-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .booth-tech-name { font-size: 11px; color: #E9D5FF; font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .booth-count { font-size: 11px; font-weight: 700; color: #C4197D; flex-shrink: 0; width: 28px; text-align: right; }
-  .booth-bar-bg { flex: 1; height: 3px; background: rgba(124,58,237,0.1); border-radius: 100px; overflow: hidden; }
+  .booth-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .booth-card { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.12); border-radius: 14px; padding: 16px; }
+  .booth-domain { font-size: 11px; font-weight: 700; color: #C4197D; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; padding-bottom: 8px; border-bottom: 1px solid rgba(124,58,237,0.1); }
+  .booth-tech-row { display: grid; grid-template-columns: 180px 1fr 32px; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .booth-tech-name { font-size: 12px; color: #E9D5FF; font-weight: 500; }
+  .booth-count { font-size: 12px; font-weight: 700; color: #C4197D; text-align: right; }
+  .booth-bar-bg { height: 4px; background: rgba(124,58,237,0.1); border-radius: 100px; overflow: hidden; }
   .booth-bar-fill { height: 100%; background: linear-gradient(90deg,#C4197D,#7C3AED); border-radius: 100px; }
 `;
 
