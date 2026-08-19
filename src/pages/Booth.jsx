@@ -221,7 +221,7 @@ export default function Booth() {
             ))}
             <div></div>
             <button className="num-btn" onClick={() => handlePinInput("0")}>0</button>
-            <button className="num-btn del" onClick={handlePinDelete}>⌫</button>
+            <button className="num-btn del" onClick={handlePinDelete}>DEL</button>
           </div>
           <button className="btn-primary" onClick={handleUnlock} disabled={pin.length !== 4}>
             Unlock Booth
