@@ -74,7 +74,9 @@ export default function Passport() {
   const [showCompletion, setShowCompletion] = useState(false);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const navigate = useNavigate();
+  const [rank, setRank] = useState(null);
+  const [totalParticipants, setTotalParticipants] = useState(0);
+  const [navigate] = useNavigate();
   const [searchParams] = useSearchParams();
 
   const wristbandId = searchParams.get("id")?.toUpperCase() ||
@@ -92,6 +94,18 @@ export default function Passport() {
       .select("*")
       .eq("wristband_id", wristbandId)
       .single();
+        // Load rank
+    const { data: allParticipants } = await supabase
+      .from("participants")
+      .select("staff_id, stamps")
+      .not("wristband_id", "is", null);
+
+    if (allParticipants) {
+      const sorted = allParticipants.sort((a, b) => b.stamps.length - a.stamps.length);
+      const myRank = sorted.findIndex(p => p.staff_id === data.staff_id) + 1;
+      setRank(myRank);
+      setTotalParticipants(allParticipants.length);
+    }
 
     if (!data) { setNotFound(true); setLoading(false); return; }
 
@@ -208,6 +222,11 @@ export default function Passport() {
             <div className="bar-bg">
               <div className="bar-fill" style={{ width: `${(stamps.length / 38) * 100}%` }} />
             </div>
+            {rank && totalParticipants > 1 && (
+              <div style={{ marginTop: 10, fontSize: 12, color: "#6B4F8B", textAlign: "center" }}>
+                🏅 You are ranked <strong style={{ color: "#C4197D" }}>#{rank}</strong> out of <strong style={{ color: "#E9D5FF" }}>{totalParticipants}</strong> participants
+              </div>
+            )}
           </div>
           {stamps.length === 0 && (
             <div style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
