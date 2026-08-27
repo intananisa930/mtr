@@ -72,6 +72,12 @@ export default function Draw() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (!loading && canvasRef.current) {
+      startRender();
+    }
+  }, [loading]);
+
   const loadData = async () => {
     setLoading(true);
     const { data: winnersData } = await supabase
@@ -90,8 +96,6 @@ export default function Draw() {
     setLoading(false);
 
     initMachine(eligRemaining);
-    startRender();
-  };
 
   function lighten(h) {
     const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
