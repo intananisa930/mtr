@@ -3,6 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { isEligible } from "../data";
 
+const EXTRA_COLORS = ["#FF6B6B","#FFD93D","#6BCB77","#4D96FF","#FF6FCF","#FF9F43","#A8E6CF","#FF8B94","#B5EAD7","#C7CEEA","#FFDAC1","#E2F0CB","#FF6B6B","#FFD93D","#6BCB77","#4D96FF"];
+const BALL_COLORS = ["#E8334A","#F59E0B","#10B981","#3B82F6","#C4197D","#F97316","#84CC16","#EC4899","#38BDF8","#8B5CF6","#06B6D4","#7C3AED"];
+
+const CW = 380, CH = 420;
+const MX=25,MY=10,MW=330,MH=370;
+const WALL=8;
+const INNER_X=MX+WALL,INNER_Y=MY+52,INNER_W=MW-WALL*2,INNER_H=MH-65;
+const FLOOR_Y=INNER_Y+INNER_H;
+const RAIL_Y=MY+32;
+const RAIL_X1=INNER_X+10,RAIL_X2=INNER_X+INNER_W-10;
+const BR=26;
+
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,7 +29,7 @@ const css = `
   .stat { background: rgba(26,13,46,0.8); border: 1px solid rgba(124,58,237,0.15); border-radius: 12px; padding: 12px; text-align: center; }
   .stat-n { font-family: 'Space Grotesk',sans-serif; font-size: 22px; font-weight: 800; }
   .stat-l { font-size: 9px; color: #6B4F8B; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
-  canvas { display: block; margin: 0 auto; width: 100%; max-width: 380px; }
+  .canvas-wrap { width: 100%; display: flex; justify-content: center; margin-bottom: 0; }
   .btn-draw { width: 100%; padding: 15px; border-radius: 14px; font-size: 15px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#C4197D,#7C3AED); color: #fff; transition: all 0.2s; margin: 12px 0; box-shadow: 0 4px 30px rgba(196,25,125,0.4); }
   .btn-draw:hover { transform: translateY(-2px); }
   .btn-draw:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -43,83 +55,59 @@ const css = `
   .btn-clear { width: 100%; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 600; font-family: 'Inter',sans-serif; cursor: pointer; background: rgba(248,113,113,0.06); color: #F87171; border: 1px solid rgba(248,113,113,0.2); margin-top: 8px; }
 `;
 
-const EXTRA_COLORS = ["#FF6B6B","#FFD93D","#6BCB77","#4D96FF","#FF6FCF","#FF9F43","#A8E6CF","#FF8B94","#B5EAD7","#C7CEEA","#FFDAC1","#E2F0CB","#FF6B6B","#FFD93D","#6BCB77","#4D96FF"];
-const BALL_COLORS = ["#E8334A","#F59E0B","#10B981","#3B82F6","#C4197D","#F97316","#84CC16","#EC4899","#38BDF8","#8B5CF6","#06B6D4","#7C3AED"];
-
-const MX=25,MY=10,MW=330,MH=370;
-const WALL=8;
-const INNER_X=MX+WALL,INNER_Y=MY+52,INNER_W=MW-WALL*2,INNER_H=MH-65;
-const FLOOR_Y=INNER_Y+INNER_H;
-const RAIL_Y=MY+32;
-const RAIL_X1=INNER_X+10,RAIL_X2=INNER_X+INNER_W-10;
-const BR=26;
-
 export default function Draw() {
   const [eligible, setEligible] = useState([]);
   const [winners, setWinners] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [phase, setPhase] = useState("idle");
   const [currentWinner, setCurrentWinner] = useState(null);
   const [showWinnerCard, setShowWinnerCard] = useState(false);
+  const [drawPhase, setDrawPhase] = useState("idle");
   const navigate = useNavigate();
   const canvasRef = useRef(null);
-  const stateRef = useRef({
-    balls: [], cl: null, phase: "idle",
-    eligible: [], winBall: null, curW: null, animId: null,
-  });
+  const animRef = useRef(null);
+  const ballsRef = useRef([]);
+  const clRef = useRef({ x: (RAIL_X1+RAIL_X2)/2, y: RAIL_Y, wireLen: 18, grip: 0, swingAngle: 0.5, swingDir: -1, tx: 0 });
+  const phaseRef = useRef("idle");
+  const winBallRef = useRef(null);
+  const curWRef = useRef(null);
+  const eligRef = useRef([]);
+  const winnersCountRef = useRef(0);
 
   useEffect(() => {
     loadData();
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, []);
-
-  useEffect(() => {
-    if (!loading && canvasRef.current) {
-      startRender();
-    }
-  }, [loading]);
 
   const loadData = async () => {
     setLoading(true);
-    const { data: winnersData } = await supabase
-      .from("winners").select("*").order("prize_number", { ascending: true });
-    const { data: participantsData } = await supabase
-      .from("participants").select("staff_id, wristband_id, display_name, name, stamps, participant_type")
-      .not("wristband_id", "is", null);
-
+    const { data: winnersData } = await supabase.from("winners").select("*").order("prize_number", { ascending: true });
+    const { data: participantsData } = await supabase.from("participants").select("*").not("wristband_id", "is", null);
     const elig = (participantsData || []).filter(p => isEligible(p.stamps));
     const wonIds = (winnersData || []).map(w => w.staff_id);
     const eligRemaining = elig.filter(p => !wonIds.includes(p.staff_id));
-
     setEligible(elig);
     setWinners(winnersData || []);
-    stateRef.current.eligible = eligRemaining;
+    winnersCountRef.current = (winnersData || []).length;
+    eligRef.current = eligRemaining;
+    buildBalls(eligRemaining);
     setLoading(false);
+  };
 
-    initMachine(eligRemaining);
-
-  function lighten(h) {
-    const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
-    return `rgb(${Math.min(255,r+75)},${Math.min(255,g+75)},${Math.min(255,b+75)})`;
-  }
-
-  function initMachine(eligList) {
-    const allBalls = [];
-    eligList.forEach((p, i) => allBalls.push({ real: true, p, color: BALL_COLORS[i % BALL_COLORS.length] }));
-    for (let i = 0; i < 16; i++) allBalls.push({ real: false, color: EXTRA_COLORS[i % EXTRA_COLORS.length] });
-    allBalls.sort(() => Math.random() - 0.5);
-
-    const balls = allBalls.map(b => ({
+  const buildBalls = (eligList) => {
+    const all = [];
+    eligList.forEach((p, i) => all.push({ real: true, p, color: BALL_COLORS[i % BALL_COLORS.length] }));
+    for (let i = 0; i < 16; i++) all.push({ real: false, color: EXTRA_COLORS[i % EXTRA_COLORS.length] });
+    all.sort(() => Math.random() - 0.5);
+    const balls = all.map(b => ({
       x: INNER_X + BR + 5 + Math.random() * (INNER_W - BR * 2 - 10),
       y: INNER_Y + BR + Math.random() * 20,
       vx: (Math.random() - 0.5) * 2, vy: Math.random() * 2,
       color: b.color, p: b.real ? b.p : null,
       r: BR, grabbed: false, real: b.real, ox: 0, oy: 0,
     }));
-
     for (let step = 0; step < 500; step++) {
       balls.forEach(b => {
-        b.vy += 0.5; b.x += b.vx; b.y += b.vy;
-        b.vx *= 0.8; b.vy *= 0.8;
+        b.vy += 0.5; b.x += b.vx; b.y += b.vy; b.vx *= 0.8; b.vy *= 0.8;
         if (b.x - b.r < INNER_X) { b.x = INNER_X + b.r; b.vx = Math.abs(b.vx) * 0.3; }
         if (b.x + b.r > INNER_X + INNER_W) { b.x = INNER_X + INNER_W - b.r; b.vx = -Math.abs(b.vx) * 0.3; }
         if (b.y - b.r < INNER_Y + 30) { b.y = INNER_Y + 30 + b.r; b.vy = Math.abs(b.vy) * 0.3; }
@@ -137,11 +125,23 @@ export default function Draw() {
       }
     }
     balls.forEach(b => { b.ox = b.x; b.oy = b.y; b.vx = 0; b.vy = 0; });
-    stateRef.current.balls = balls;
-    stateRef.current.cl = { x: (RAIL_X1 + RAIL_X2) / 2, y: RAIL_Y, wireLen: 18, grip: 0, swingAngle: 0.5, swingDir: -1, tx: 0 };
-  }
+    ballsRef.current = balls;
+    clRef.current = { x: (RAIL_X1 + RAIL_X2) / 2, y: RAIL_Y, wireLen: 18, grip: 0, swingAngle: 0.5, swingDir: -1, tx: 0 };
+  };
 
-  function drawBall(ctx, b) {
+  useEffect(() => {
+    if (!loading && canvasRef.current) {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      startRender();
+    }
+  }, [loading]);
+
+  const lighten = (h) => {
+    const r = parseInt(h.slice(1, 3), 16), g = parseInt(h.slice(3, 5), 16), b = parseInt(h.slice(5, 7), 16);
+    return `rgb(${Math.min(255, r + 75)},${Math.min(255, g + 75)},${Math.min(255, b + 75)})`;
+  };
+
+  const drawBall = (ctx, b) => {
     ctx.save();
     if (b.grabbed) { ctx.shadowColor = b.color; ctx.shadowBlur = 30; }
     const g = ctx.createRadialGradient(b.x - b.r * .35, b.y - b.r * .4, b.r * .05, b.x, b.y, b.r);
@@ -152,35 +152,33 @@ export default function Draw() {
     ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fillStyle = s; ctx.fill();
     if (b.real && b.p) {
       ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.font = "bold 9px Inter"; ctx.fillText(b.p.wristband_id || b.p.staff_id, b.x, b.y - 5.5);
+      ctx.font = "bold 9px Inter"; ctx.fillText(b.p.wristband_id || "", b.x, b.y - 5.5);
       ctx.font = "6.5px Inter"; ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.fillText((b.p.display_name || b.p.name || "").split(" ")[0], b.x, b.y + 6);
     }
     ctx.restore();
-  }
+  };
 
-  function drawArm(ctx, px, py, dir, grip) {
+  const drawArm = (ctx, px, py, dir, grip) => {
     const open = 1 - grip;
     const j1x = px + Math.sin(dir * 0.65 * open) * 28 * dir;
     const j1y = py + Math.cos(Math.abs(dir * 0.65 * open)) * 28;
     const loA = dir * (1.1 * open - 0.62);
     const tipX = j1x + Math.sin(loA) * 26;
     const tipY = j1y + Math.cos(Math.abs(loA)) * 26;
-    ctx.strokeStyle = "rgba(215,175,255,1)";
-    ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(215,175,255,1)"; ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.lineJoin = "round";
     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(j1x, j1y); ctx.stroke();
     ctx.lineWidth = 11;
     ctx.beginPath(); ctx.moveTo(j1x, j1y); ctx.lineTo(tipX, tipY); ctx.stroke();
     ctx.fillStyle = "rgba(160,100,220,1)";
     ctx.beginPath(); ctx.arc(j1x, j1y, 7, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = grip > 0.5 ? "#C4197D" : "rgba(190,145,255,0.9)";
-    ctx.shadowColor = grip > 0.5 ? "#C4197D" : "transparent";
-    ctx.shadowBlur = grip > 0.5 ? 16 : 0;
+    ctx.shadowColor = grip > 0.5 ? "#C4197D" : "transparent"; ctx.shadowBlur = grip > 0.5 ? 16 : 0;
     ctx.beginPath(); ctx.arc(tipX, tipY, grip > 0.5 ? 11 : 8, 0, Math.PI * 2); ctx.fill();
     ctx.shadowBlur = 0;
-  }
+  };
 
-  function drawClaw(ctx, cl) {
+  const drawClaw = (ctx, cl) => {
     const { x, y, wireLen, grip } = cl;
     const headY = y + wireLen;
     ctx.save();
@@ -191,20 +189,15 @@ export default function Draw() {
     hg.addColorStop(0, "rgba(155,75,230,1)"); hg.addColorStop(1, "rgba(85,28,150,1)");
     ctx.fillStyle = hg; ctx.strokeStyle = "rgba(196,25,125,1)"; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.roundRect(x - hw / 2, headY, hw, hh, 8); ctx.fill(); ctx.stroke();
-    [[x - 18, headY + hh / 2], [x, headY + hh / 2], [x + 18, headY + hh / 2]].forEach(([rx, ry]) => {
-      ctx.fillStyle = "rgba(255,160,215,0.5)"; ctx.beginPath(); ctx.arc(rx, ry, 3.5, 0, Math.PI * 2); ctx.fill();
-    });
     drawArm(ctx, x, headY + hh, -1, grip);
     drawArm(ctx, x, headY + hh, 1, grip);
     ctx.restore();
-  }
+  };
 
-  function drawRail(ctx) {
+  const drawRail = (ctx) => {
     ctx.save();
     ctx.strokeStyle = "rgba(196,25,125,0.9)"; ctx.lineWidth = 9; ctx.lineCap = "round";
     ctx.beginPath(); ctx.moveTo(RAIL_X1, RAIL_Y); ctx.lineTo(RAIL_X2, RAIL_Y); ctx.stroke();
-    ctx.strokeStyle = "rgba(255,190,225,0.4)"; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(RAIL_X1, RAIL_Y - 2); ctx.lineTo(RAIL_X2, RAIL_Y - 2); ctx.stroke();
     for (let rx = RAIL_X1 + 20; rx < RAIL_X2 - 10; rx += 38) {
       ctx.fillStyle = "rgba(255,130,195,0.7)"; ctx.beginPath(); ctx.arc(rx, RAIL_Y, 5, 0, Math.PI * 2); ctx.fill();
     }
@@ -213,9 +206,9 @@ export default function Draw() {
       ctx.beginPath(); ctx.arc(ex, RAIL_Y, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     });
     ctx.restore();
-  }
+  };
 
-  function drawMachine(ctx) {
+  const drawMachine = (ctx) => {
     ctx.save();
     const cabG = ctx.createLinearGradient(MX, MY, MX + MW, MY + MH);
     cabG.addColorStop(0, "rgba(90,35,160,1)"); cabG.addColorStop(0.5, "rgba(55,18,110,1)"); cabG.addColorStop(1, "rgba(32,10,75,1)");
@@ -238,79 +231,73 @@ export default function Draw() {
     ctx.fillStyle = "rgba(255,180,220,0.3)"; ctx.font = "11px Inter";
     ctx.textAlign = "center"; ctx.fillText("PRIZE TRAY", MX + MW / 2, MY + MH + 14);
     ctx.restore();
-  }
+  };
 
-  function updateClawPhysics() {
-    const s = stateRef.current;
-    const cl = s.cl;
-    if (!cl) return;
+  const updateClaw = () => {
+    const cl = clRef.current;
+    const wb = winBallRef.current;
+    const p = phaseRef.current;
 
-    if (s.phase === "swinging") {
+    if (p === "swinging") {
       cl.swingAngle += 0.032 * cl.swingDir;
       if (Math.abs(cl.swingAngle) > 0.55) cl.swingDir *= -1;
       const range = (RAIL_X2 - RAIL_X1) / 2;
       cl.x = RAIL_X1 + range + Math.sin(cl.swingAngle) * range;
     }
-    if (s.phase === "settling") {
+    if (p === "settling") {
       cl.swingAngle *= 0.88;
       const range = (RAIL_X2 - RAIL_X1) / 2;
       cl.x = RAIL_X1 + range + Math.sin(cl.swingAngle) * range;
-      if (Math.abs(cl.swingAngle) < 0.04) { cl.x = cl.tx; s.phase = "descending"; }
+      if (Math.abs(cl.swingAngle) < 0.04) { cl.x = cl.tx; phaseRef.current = "descending"; }
     }
-    if (s.phase === "descending") {
+    if (p === "descending") {
       cl.wireLen += 5;
-      if (s.winBall) {
+      if (wb) {
         const tipY = RAIL_Y + cl.wireLen + 26 + 26;
-        if (tipY >= s.winBall.y && Math.abs(cl.x - s.winBall.x) < 28) s.phase = "closing";
+        if (tipY >= wb.y && Math.abs(cl.x - wb.x) < 28) phaseRef.current = "closing";
       }
-      if (cl.wireLen > INNER_H - 25) s.phase = "closing";
+      if (cl.wireLen > INNER_H - 25) phaseRef.current = "closing";
     }
-    if (s.phase === "closing") {
+    if (p === "closing") {
       cl.grip = Math.min(1, cl.grip + 0.04);
-      if (cl.grip >= 1) { if (s.winBall) s.winBall.grabbed = true; s.phase = "lifting"; }
+      if (cl.grip >= 1) { if (wb) wb.grabbed = true; phaseRef.current = "lifting"; }
     }
-    if (s.phase === "lifting") {
+    if (p === "lifting") {
       cl.wireLen -= 5;
-      if (s.winBall) {
-        s.winBall.x = cl.x;
-        s.winBall.y = RAIL_Y + cl.wireLen + 26 + BR + 4;
-      }
+      if (wb) { wb.x = cl.x; wb.y = RAIL_Y + cl.wireLen + 26 + BR + 4; }
       if (cl.wireLen <= 18) {
-        cl.wireLen = 18;
-        s.phase = "holding";
+        cl.wireLen = 18; phaseRef.current = "holding";
         setTimeout(() => {
-          setCurrentWinner(s.curW);
+          setCurrentWinner({ ...curWRef.current });
           setShowWinnerCard(true);
+          setDrawPhase("holding");
         }, 400);
       }
     }
-  }
+  };
 
-  function startRender() {
+  const startRender = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
 
-    function render() {
-      ctx.clearRect(0, 0, W, H);
-      const bg = ctx.createLinearGradient(0, 0, 0, H);
+    const render = () => {
+      ctx.clearRect(0, 0, CW, CH);
+      const bg = ctx.createLinearGradient(0, 0, 0, CH);
       bg.addColorStop(0, "#100525"); bg.addColorStop(1, "#060215");
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, CW, CH);
 
-      const s = stateRef.current;
       drawMachine(ctx);
 
       ctx.save();
       ctx.beginPath(); ctx.rect(INNER_X + 2, INNER_Y + 2, INNER_W - 4, INNER_H - 4); ctx.clip();
-      updateClawPhysics();
-      s.balls.filter(b => !b.grabbed).forEach(b => drawBall(ctx, b));
+      updateClaw();
+      ballsRef.current.filter(b => !b.grabbed).forEach(b => drawBall(ctx, b));
       drawRail(ctx);
-      if (s.cl) drawClaw(ctx, s.cl);
-      s.balls.filter(b => b.grabbed).forEach(b => drawBall(ctx, b));
+      drawClaw(ctx, clRef.current);
+      ballsRef.current.filter(b => b.grabbed).forEach(b => drawBall(ctx, b));
       ctx.restore();
 
-      // Glass reflection
       ctx.save();
       ctx.beginPath(); ctx.roundRect(INNER_X, INNER_Y, INNER_W, INNER_H, 8); ctx.clip();
       const rg = ctx.createLinearGradient(INNER_X, INNER_Y, INNER_X + 50, INNER_Y + INNER_H);
@@ -318,58 +305,49 @@ export default function Draw() {
       ctx.fillStyle = rg; ctx.fillRect(INNER_X, INNER_Y, INNER_W, INNER_H);
       ctx.restore();
 
-      s.animId = requestAnimationFrame(render);
-    }
+      animRef.current = requestAnimationFrame(render);
+    };
     render();
-  }
-
-  useEffect(() => {
-    return () => { if (stateRef.current.animId) cancelAnimationFrame(stateRef.current.animId); };
-  }, []);
+  };
 
   const handleDraw = () => {
-    const s = stateRef.current;
-    if (s.phase !== "idle" || s.eligible.length === 0) return;
+    if (phaseRef.current !== "idle" || eligRef.current.length === 0) return;
     setShowWinnerCard(false);
+    setCurrentWinner(null);
+    setDrawPhase("drawing");
     const pool = [];
-    s.eligible.forEach(p => { for (let i = 0; i < p.stamps.length; i++) pool.push(p); });
+    eligRef.current.forEach(p => { for (let i = 0; i < p.stamps.length; i++) pool.push(p); });
     const winner = pool[Math.floor(Math.random() * pool.length)];
-    s.curW = winner;
-    s.winBall = s.balls.find(b => b.real && b.p && b.p.staff_id === winner.staff_id);
-    if (s.cl) {
-      s.cl.tx = s.winBall ? s.winBall.x : (RAIL_X1 + RAIL_X2) / 2;
-      s.cl.grip = 0; s.cl.wireLen = 18; s.cl.swingAngle = 0.55; s.cl.swingDir = -1;
-    }
-    s.phase = "swinging";
-    setTimeout(() => { s.phase = "settling"; }, 2500);
+    curWRef.current = winner;
+    const wb = ballsRef.current.find(b => b.real && b.p && b.p.staff_id === winner.staff_id);
+    winBallRef.current = wb;
+    const cl = clRef.current;
+    cl.tx = wb ? wb.x : (RAIL_X1 + RAIL_X2) / 2;
+    cl.grip = 0; cl.wireLen = 18; cl.swingAngle = 0.55; cl.swingDir = -1;
+    phaseRef.current = "swinging";
+    setTimeout(() => { phaseRef.current = "settling"; }, 2500);
   };
 
   const handleConfirm = async () => {
-    const s = stateRef.current;
-    const winner = s.curW;
+    const winner = curWRef.current;
     if (!winner) return;
-
-    await supabase.from("winners").insert({ staff_id: winner.staff_id, prize_number: winners.length + 1 });
-
-    if (s.winBall) s.balls = s.balls.filter(b => b !== s.winBall);
-    s.eligible = s.eligible.filter(p => p.staff_id !== winner.staff_id);
-    s.winBall = null; s.curW = null;
-    if (s.cl) { s.cl = { x: (RAIL_X1 + RAIL_X2) / 2, y: RAIL_Y, wireLen: 18, grip: 0, swingAngle: 0.5, swingDir: -1, tx: 0 }; }
-    s.phase = "idle";
-
-    setShowWinnerCard(false);
-    setCurrentWinner(null);
+    await supabase.from("winners").insert({ staff_id: winner.staff_id, prize_number: winnersCountRef.current + 1 });
+    if (winBallRef.current) ballsRef.current = ballsRef.current.filter(b => b !== winBallRef.current);
+    eligRef.current = eligRef.current.filter(p => p.staff_id !== winner.staff_id);
+    winBallRef.current = null; curWRef.current = null;
+    clRef.current = { x: (RAIL_X1 + RAIL_X2) / 2, y: RAIL_Y, wireLen: 18, grip: 0, swingAngle: 0.5, swingDir: -1, tx: 0 };
+    phaseRef.current = "idle";
+    setShowWinnerCard(false); setCurrentWinner(null); setDrawPhase("idle");
     await loadData();
   };
 
   const handleRedraw = () => {
-    const s = stateRef.current;
-    if (s.winBall) { s.winBall.grabbed = false; s.winBall.x = s.winBall.ox; s.winBall.y = s.winBall.oy; }
-    s.winBall = null; s.curW = null;
-    if (s.cl) { s.cl = { x: (RAIL_X1 + RAIL_X2) / 2, y: RAIL_Y, wireLen: 18, grip: 0, swingAngle: 0.5, swingDir: -1, tx: 0 }; }
-    s.phase = "idle";
-    setShowWinnerCard(false);
-    setCurrentWinner(null);
+    const wb = winBallRef.current;
+    if (wb) { wb.grabbed = false; wb.x = wb.ox; wb.y = wb.oy; }
+    winBallRef.current = null; curWRef.current = null;
+    clRef.current = { x: (RAIL_X1 + RAIL_X2) / 2, y: RAIL_Y, wireLen: 18, grip: 0, swingAngle: 0.5, swingDir: -1, tx: 0 };
+    phaseRef.current = "idle";
+    setShowWinnerCard(false); setCurrentWinner(null); setDrawPhase("idle");
   };
 
   const clearWinners = async () => {
@@ -392,16 +370,18 @@ export default function Draw() {
         <div className="stats-row">
           <div className="stat"><div className="stat-n" style={{ color: "#fff" }}>{eligible.length}</div><div className="stat-l">Eligible</div></div>
           <div className="stat"><div className="stat-n" style={{ color: "#C4197D" }}>{winners.length}</div><div className="stat-l">Winners</div></div>
-          <div className="stat"><div className="stat-n" style={{ color: "#F59E0B" }}>{stateRef.current.eligible?.length || 0}</div><div className="stat-l">Remaining</div></div>
+          <div className="stat"><div className="stat-n" style={{ color: "#F59E0B" }}>{eligRef.current.length}</div><div className="stat-l">Remaining</div></div>
         </div>
 
         {loading ? (
-          <div className="loading">Loading...</div>
+          <div className="loading">Setting up lucky draw...</div>
         ) : eligible.length === 0 ? (
           <div className="no-eligible">No eligible participants yet.</div>
         ) : (
           <>
-            <canvas ref={canvasRef} width={380} height={420} />
+            <div className="canvas-wrap">
+              <canvas ref={canvasRef} width={CW} height={CH} style={{ maxWidth: "100%" }} />
+            </div>
 
             {showWinnerCard && currentWinner && (
               <>
@@ -418,9 +398,8 @@ export default function Draw() {
             )}
 
             {!showWinnerCard && (
-              <button className="btn-draw" onClick={handleDraw}
-                disabled={stateRef.current.phase !== "idle"}>
-                🎰 Draw a Winner!
+              <button className="btn-draw" onClick={handleDraw} disabled={drawPhase !== "idle"}>
+                {drawPhase === "drawing" ? "Drawing..." : "🎰 Draw a Winner!"}
               </button>
             )}
 
@@ -446,7 +425,6 @@ export default function Draw() {
             )}
           </>
         )}
-
         <button className="btn-ghost" style={{ marginTop: 8 }} onClick={() => navigate("/admin")}>← Back to Dashboard</button>
       </div>
     </>
