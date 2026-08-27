@@ -10,11 +10,12 @@ const css = `
   .dot-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
   .dot-grid svg { opacity: 0.06; width: 100%; height: 100%; }
   .wrap { max-width: 480px; margin: 0 auto; padding: 24px 20px; position: relative; z-index: 1; min-height: 100vh; }
-  .logo { display: inline-block; background: #C4197D; color: #fff; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 13px; padding: 5px 10px; border-radius: 6px; margin-bottom: 12px; letter-spacing: 1px; }
+  .top-header { text-align: center; margin-bottom: 16px; }
+  .logo { display: inline-block; background: #C4197D; color: #fff; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 13px; padding: 5px 10px; border-radius: 6px; margin-bottom: 10px; letter-spacing: 1px; }
+  .booth-header { text-align: center; margin-bottom: 24px; }
   .domain-badge { display: inline-block; font-size: 11px; font-weight: 600; color: #A78BFA; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); padding: 4px 12px; border-radius: 100px; }
   .booth-name { font-family: 'Space Grotesk',sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; text-align: center; }
-  .booth-use { font-size: 13px; color: #6B4F8B; margin-bottom: 24px; text-align: center; }
-  .booth-header { text-align: center; margin-bottom: 24px; }
+  .booth-use { font-size: 13px; color: #6B4F8B; margin-bottom: 0; text-align: center; }
   .card { background: rgba(26,13,46,0.8); border: 1px solid rgba(196,25,125,0.2); border-radius: 20px; padding: 24px; backdrop-filter: blur(8px); margin-bottom: 16px; }
   .card-title { font-size: 14px; font-weight: 600; color: #F3E8FF; margin-bottom: 16px; text-align: center; }
   .pin-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
@@ -44,22 +45,28 @@ const css = `
   .scan-wb { font-size: 13px; font-weight: 700; color: #C4197D; width: 50px; flex-shrink: 0; }
   .scan-name { font-size: 13px; color: #E9D5FF; flex: 1; }
   .scan-time { font-size: 10px; color: #4B3B6B; }
-  .result-wrap { text-align: center; padding: 20px 0; }
+  .result-wrap { text-align: center; padding: 10px 0; }
   .result-emoji { font-size: 56px; display: block; margin-bottom: 16px; animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
   @keyframes pop { from { transform: scale(0) rotate(-20deg); } to { transform: scale(1) rotate(0); } }
   .result-title { font-family: 'Space Grotesk',sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
   .result-wb { font-size: 28px; font-weight: 800; color: #C4197D; font-family: 'Space Grotesk',sans-serif; }
   .result-name { font-size: 14px; color: #9CA3AF; margin-top: 4px; margin-bottom: 20px; }
-  .visitors-section { margin-top: 8px; }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(124,58,237,0.2); background: rgba(26,13,46,0.6); color: #9CA3AF; font-family: 'Inter',sans-serif; transition: all 0.15s; text-align: center; }
+  .tab-btn.active { border-color: #C4197D; color: #C4197D; background: rgba(196,25,125,0.1); }
   .visitor-item { display: flex; align-items: center; gap: 10px; background: rgba(26,13,46,0.5); border: 1px solid rgba(124,58,237,0.1); border-radius: 10px; padding: 8px 12px; margin-bottom: 6px; }
   .visitor-num { font-size: 10px; color: #4B3B6B; width: 20px; flex-shrink: 0; }
   .visitor-wb { font-size: 12px; font-weight: 700; color: #C4197D; width: 44px; flex-shrink: 0; }
   .visitor-name { font-size: 12px; color: #E9D5FF; flex: 1; }
   .visitor-time { font-size: 10px; color: #4B3B6B; }
-  .tab-row { display: flex; gap: 8px; margin-bottom: 14px; }
-  .tab-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(124,58,237,0.2); background: rgba(26,13,46,0.6); color: #9CA3AF; font-family: 'Inter',sans-serif; transition: all 0.15s; text-align: center; }
-  .tab-btn.active { border-color: #C4197D; color: #C4197D; background: rgba(196,25,125,0.1); }
+  .booth-id-label { text-align: center; font-size: 11px; color: #2D1B4E; margin-top: 8px; }
 `;
+
+const DotGrid = () => (
+  <div className="dot-grid">
+    <svg><defs><pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#C4197D" /></pattern></defs><rect width="100%" height="100%" fill="url(#dots)" /></svg>
+  </div>
+);
 
 export default function Booth() {
   const { boothId } = useParams();
@@ -78,11 +85,7 @@ export default function Booth() {
 
   useEffect(() => {
     const loadBooth = async () => {
-      const { data } = await supabase
-        .from("booths")
-        .select("*")
-        .eq("booth_id", boothId)
-        .single();
+      const { data } = await supabase.from("booths").select("*").eq("booth_id", boothId).single();
       setBooth(data);
     };
     if (boothId) loadBooth();
@@ -91,155 +94,90 @@ export default function Booth() {
   const loadVisitors = async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     const { data } = await supabase
       .from("stamp_log")
       .select("staff_id, scanned_at, participants(wristband_id, display_name)")
       .eq("booth_id", boothId)
       .gte("scanned_at", today.toISOString())
       .order("scanned_at", { ascending: false });
-
     setVisitors(data || []);
     setStampCount(data?.length || 0);
   };
 
-  useEffect(() => {
-    if (unlocked) loadVisitors();
-  }, [unlocked]);
+  useEffect(() => { if (unlocked) loadVisitors(); }, [unlocked]);
 
   useEffect(() => {
     if (!scanning) return;
-
     const loadScanner = async () => {
       const { Html5QrcodeScanner } = await import("html5-qrcode");
-      const scanner = new Html5QrcodeScanner(
-        "qr-reader",
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        false
-      );
+      const scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
       scanner.render(
-        async (rawText) => {
-          await scanner.clear();
-          setScanning(false);
-          await handleScan(rawText);
-        },
+        async (rawText) => { await scanner.clear(); setScanning(false); await handleScan(rawText); },
         () => {}
       );
       scannerRef.current = scanner;
     };
-
     loadScanner();
     return () => { try { scannerRef.current?.clear(); } catch {} };
   }, [scanning]);
 
-  const handlePinInput = (num) => {
-    if (pin.length < 4) setPin(p => p + num);
-  };
-
+  const handlePinInput = (num) => { if (pin.length < 4) setPin(p => p + num); };
   const handlePinDelete = () => setPin(p => p.slice(0, -1));
 
   const handleUnlock = async () => {
-    const { data } = await supabase
-      .from("booth_pins")
-      .select("pin")
-      .eq("booth_id", boothId)
-      .single();
-
-    if (!data || data.pin !== pin) {
-      setPinError("Incorrect PIN. Please try again.");
-      setPin("");
-      return;
-    }
-    setUnlocked(true);
-    setPinError("");
+    const { data } = await supabase.from("booth_pins").select("pin").eq("booth_id", boothId).single();
+    if (!data || data.pin !== pin) { setPinError("Incorrect PIN. Please try again."); setPin(""); return; }
+    setUnlocked(true); setPinError("");
   };
 
   const handleScan = async (rawText) => {
     setScanError("");
     try {
       let wristbandId = rawText;
-      if (rawText.includes("?id=")) {
-        wristbandId = rawText.split("?id=")[1].toUpperCase();
-      }
+      if (rawText.includes("?id=")) wristbandId = rawText.split("?id=")[1].toUpperCase();
       wristbandId = wristbandId.trim().toUpperCase();
 
-      const { data: participant } = await supabase
-        .from("participants")
-        .select("*")
-        .eq("wristband_id", wristbandId)
-        .single();
-
-      if (!participant) {
-        setScanError(`Wristband ${wristbandId} not found. Ask participant to register first.`);
-        return;
-      }
-
-      if (participant.stamps.includes(boothId)) {
-        setScanError(`${wristbandId} already has a stamp for this booth.`);
-        return;
-      }
+      const { data: participant } = await supabase.from("participants").select("*").eq("wristband_id", wristbandId).single();
+      if (!participant) { setScanError(`Wristband ${wristbandId} not found. Ask participant to register first.`); return; }
+      if (participant.stamps.includes(boothId)) { setScanError(`${wristbandId} already has a stamp for this booth.`); return; }
 
       const newStamps = [...participant.stamps, boothId];
       const eligible = isEligible(newStamps);
 
-      await supabase
-        .from("participants")
-        .update({ stamps: newStamps, eligible, last_updated: new Date().toISOString() })
-        .eq("wristband_id", wristbandId);
+      await supabase.from("participants").update({ stamps: newStamps, eligible, last_updated: new Date().toISOString() }).eq("wristband_id", wristbandId);
+      await supabase.from("stamp_log").insert({ staff_id: participant.staff_id, booth_id: boothId });
 
-      await supabase.from("stamp_log").insert({
-        staff_id: participant.staff_id,
-        booth_id: boothId,
-      });
-
-      setScanResult({
-        wristbandId,
-        name: participant.display_name || participant.name || "",
-        eligible,
-        totalStamps: newStamps.length,
-      });
-
-      setScanHistory(prev => [{
-        wristbandId,
-        name: participant.display_name || participant.name || "",
-        time: new Date().toLocaleTimeString(),
-      }, ...prev.slice(0, 4)]);
-
+      setScanResult({ wristbandId, name: participant.display_name || participant.name || "", eligible, totalStamps: newStamps.length });
+      setScanHistory(prev => [{ wristbandId, name: participant.display_name || participant.name || "", time: new Date().toLocaleTimeString() }, ...prev.slice(0, 4)]);
       setStampCount(prev => prev + 1);
       await loadVisitors();
-
     } catch (err) {
       setScanError("Could not read QR. Please try again.");
       console.error(err);
     }
   };
 
-  const DotGrid = () => (
-    <div className="dot-grid">
-      <svg><defs><pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#C4197D" /></pattern></defs><rect width="100%" height="100%" fill="url(#dots)" /></svg>
-    </div>
-  );
-
+  // PIN screen
   if (!unlocked) return (
     <>
       <style>{css}</style>
       <DotGrid />
       <div className="wrap">
-        <div className="logo">MIMOS</div>
+        <div className="top-header">
+          <div className="logo">MIMOS</div>
+        </div>
         {booth && (
-          <>
+          <div className="booth-header">
             <div className="domain-badge">{booth.domain_name}</div>
             <div className="booth-name">{booth.name}</div>
-            <div className="booth-use">{booth.use_case}</div>
-          </>
+            {booth.use_case && <div className="booth-use">{booth.use_case}</div>}
+          </div>
         )}
         <div className="card">
           <div className="card-title">Enter Booth PIN</div>
           <div className="pin-row">
             {[0,1,2,3].map(i => (
-              <div key={i} className={`pin-d ${pin[i] ? "" : "empty"}`}>
-                {pin[i] ? "●" : "○"}
-              </div>
+              <div key={i} className={`pin-d ${pin[i] ? "" : "empty"}`}>{pin[i] ? "●" : "○"}</div>
             ))}
           </div>
           {pinError && <div className="err">{pinError}</div>}
@@ -251,23 +189,28 @@ export default function Booth() {
             <button className="num-btn" onClick={() => handlePinInput("0")}>0</button>
             <button className="num-btn del" onClick={handlePinDelete}>DEL</button>
           </div>
-          <button className="btn-primary" onClick={handleUnlock} disabled={pin.length !== 4}>
-            Unlock Booth
-          </button>
+          <button className="btn-primary" onClick={handleUnlock} disabled={pin.length !== 4}>Unlock Booth</button>
         </div>
-        <div style={{ textAlign: "center", fontSize: 12, color: "#4B3B6B" }}>Booth ID: {boothId}</div>
+        <div className="booth-id-label">Booth ID: {boothId}</div>
       </div>
     </>
   );
 
+  // Scan result screen
   if (scanResult) return (
     <>
       <style>{css}</style>
       <DotGrid />
       <div className="wrap">
-        <div className="logo">MIMOS</div>
-        <div className="domain-badge">{booth?.domain_name}</div>
-        <div className="booth-name">{booth?.name}</div>
+        <div className="top-header">
+          <div className="logo">MIMOS</div>
+        </div>
+        {booth && (
+          <div className="booth-header">
+            <div className="domain-badge">{booth.domain_name}</div>
+            <div className="booth-name">{booth.name}</div>
+          </div>
+        )}
         <div className="result-wrap">
           <div className="card" style={{ textAlign: "center" }}>
             <span className="result-emoji">🎖️</span>
@@ -287,18 +230,21 @@ export default function Booth() {
     </>
   );
 
+  // Main scanner screen
   return (
     <>
       <style>{css}</style>
       <DotGrid />
       <div className="wrap">
-        <div className="logo">MIMOS</div>
+        <div className="top-header">
+          <div className="logo">MIMOS</div>
+        </div>
         {booth && (
-          <>
+          <div className="booth-header">
             <div className="domain-badge">{booth.domain_name}</div>
             <div className="booth-name">{booth.name}</div>
-            <div className="booth-use">{booth.use_case}</div>
-          </>
+            {booth.use_case && <div className="booth-use">{booth.use_case}</div>}
+          </div>
         )}
 
         <div className="stamp-count">
@@ -307,9 +253,7 @@ export default function Booth() {
         </div>
 
         <div className="tab-row">
-          <button className={`tab-btn ${activeTab === "scanner" ? "active" : ""}`} onClick={() => setActiveTab("scanner")}>
-            📷 Scanner
-          </button>
+          <button className={`tab-btn ${activeTab === "scanner" ? "active" : ""}`} onClick={() => setActiveTab("scanner")}>📷 Scanner</button>
           <button className={`tab-btn ${activeTab === "visitors" ? "active" : ""}`} onClick={() => { setActiveTab("visitors"); loadVisitors(); }}>
             👥 Visitors ({stampCount})
           </button>
@@ -328,7 +272,6 @@ export default function Booth() {
                 📷 Scan Participant Wristband
               </button>
             )}
-
             {scanHistory.length > 0 && (
               <>
                 <div className="divider" />
@@ -349,12 +292,10 @@ export default function Booth() {
         )}
 
         {activeTab === "visitors" && (
-          <div className="visitors-section">
+          <>
             <div className="section-title">All visitors today ({visitors.length})</div>
             {visitors.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px 20px", color: "#4B3B6B", fontSize: 14 }}>
-                No visitors yet today
-              </div>
+              <div style={{ textAlign: "center", padding: "40px 20px", color: "#4B3B6B", fontSize: 14 }}>No visitors yet today</div>
             ) : (
               visitors.map((v, i) => (
                 <div key={i} className="visitor-item">
@@ -366,7 +307,7 @@ export default function Booth() {
               ))
             )}
             <button className="btn-ghost" style={{ marginTop: 12 }} onClick={loadVisitors}>🔄 Refresh</button>
-          </div>
+          </>
         )}
 
         <div className="divider" />
