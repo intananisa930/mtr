@@ -12,8 +12,9 @@ const css = `
   .wrap { max-width: 480px; margin: 0 auto; padding: 24px 20px; position: relative; z-index: 1; min-height: 100vh; }
   .logo { display: inline-block; background: #C4197D; color: #fff; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 13px; padding: 5px 10px; border-radius: 6px; margin-bottom: 12px; letter-spacing: 1px; }
   .domain-badge { display: inline-block; font-size: 11px; font-weight: 600; color: #A78BFA; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); padding: 4px 12px; border-radius: 100px; }
-  .booth-name { font-family: 'Space Grotesk',sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-  .booth-use { font-size: 13px; color: #6B4F8B; margin-bottom: 24px; }
+  .booth-name { font-family: 'Space Grotesk',sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; text-align: center; }
+  .booth-use { font-size: 13px; color: #6B4F8B; margin-bottom: 24px; text-align: center; }
+  .booth-header { text-align: center; margin-bottom: 24px; }
   .card { background: rgba(26,13,46,0.8); border: 1px solid rgba(196,25,125,0.2); border-radius: 20px; padding: 24px; backdrop-filter: blur(8px); margin-bottom: 16px; }
   .card-title { font-size: 14px; font-weight: 600; color: #F3E8FF; margin-bottom: 16px; text-align: center; }
   .pin-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
