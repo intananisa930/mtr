@@ -155,7 +155,7 @@ export default function Admin() {
           <button className="btn-draw" onClick={() => navigate("/admin/draw")}>🎰 Lucky Draw</button>
           <button className="btn-leaderboard" onClick={() => window.open("/leaderboard", "_blank")}>🏆 Leaderboard</button>
           <button className="btn-excel" onClick={exportToExcel}>📊 Export Excel</button>
-          <button className="btn-refresh" onClick={load}>🔄</button>
+          <button className="btn-refresh" onClick={load}>Refresh</button>
         </div>
 
         <div className="section-title">Booth Visit Stats</div>
@@ -220,7 +220,9 @@ export default function Admin() {
                   <div><span className={`pill ${elig ? "pill-g" : "pill-p"}`}>{elig ? "✓ Eligible" : "In Progress"}</span></div>
                   <div style={{ color: "#6B4F8B" }}>{new Date(p.last_updated).toLocaleTimeString()}</div>
                   <div>
-                    <button className="btn-delete" onClick={() => handleDelete(p.staff_id, p.wristband_id)}>🗑️</button>
+                    <button onClick={() => handleDelete(p.staff_id, p.wristband_id)} style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", color: "#F87171", borderRadius: 6, padding: "4px 8px", fontSize: 11, cursor: "pointer", fontFamily: "Inter,sans-serif", whiteSpace: "nowrap" }}>
+                      Delete
+                    </button>
                   </div>
                 </div>
               );
