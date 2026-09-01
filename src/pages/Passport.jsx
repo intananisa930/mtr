@@ -346,20 +346,68 @@ export default function Passport() {
                 </div>
 
                 {isOpen && (
-                  <div className="tech-list">
-                    {domain.techs.map(tech => {
-                      const done = stamps.includes(tech.id);
-                      return (
-                        <div key={tech.id} className={`tech-row ${done ? "done" : ""}`}>
-                          <div className={`tech-icon ${done ? "done" : "empty"}`}>{done ? "✅" : "⬜"}</div>
-                          <div style={{ flex: 1 }}>
-                            <div className="tech-name">{tech.name}</div>
-                            <div className="tech-use">{tech.use}</div>
+                  <div style={{ borderTop: `1px solid ${domain.color}22`, padding: "14px 16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+                      {domain.techs.map(tech => {
+                        const done = stamps.includes(tech.id);
+                        return (
+                          <div key={tech.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                            {/* Stamp circle */}
+                            <div style={{
+                              width: 70, height: 70,
+                              borderRadius: "50%",
+                              border: done ? `3px solid ${domain.color}` : "3px dashed rgba(124,58,237,0.2)",
+                              background: done ? domain.colorBg : "rgba(10,6,18,0.4)",
+                              display: "flex", flexDirection: "column",
+                              alignItems: "center", justifyContent: "center",
+                              position: "relative",
+                              boxShadow: done ? `0 0 16px ${domain.color}44` : "none",
+                              transition: "all 0.4s",
+                              animation: done ? "none" : "none",
+                            }}>
+                              {done ? (
+                                <>
+                                  {/* Outer ring detail */}
+                                  <div style={{
+                                    position: "absolute", inset: 4,
+                                    borderRadius: "50%",
+                                    border: `1px solid ${domain.color}66`,
+                                  }} />
+                                  <div style={{ fontSize: 22 }}>{domain.icon}</div>
+                                  <div style={{
+                                    fontSize: 7, fontWeight: 800, color: domain.color,
+                                    textTransform: "uppercase", letterSpacing: 0.5,
+                                    textAlign: "center", lineHeight: 1.2,
+                                    padding: "0 6px",
+                                  }}>✓</div>
+                                </>
+                              ) : (
+                                <>
+                                  <div style={{ fontSize: 20, opacity: 0.2 }}>{domain.icon}</div>
+                                </>
+                              )}
+                            </div>
+                            {/* Tech name below stamp */}
+                            <div style={{
+                              fontSize: 9, fontWeight: 600,
+                              color: done ? domain.color : "#4B3B6B",
+                              textAlign: "center", lineHeight: 1.3,
+                              maxWidth: 72,
+                            }}>
+                              {tech.name}
+                            </div>
+                            {done && (
+                              <div style={{
+                                fontSize: 8, color: "#10B981", fontWeight: 600,
+                                background: "rgba(16,185,129,0.1)",
+                                border: "1px solid rgba(16,185,129,0.2)",
+                                padding: "2px 6px", borderRadius: 20,
+                              }}>Stamped</div>
+                            )}
                           </div>
-                          {done && <div style={{ fontSize: 11, color: "#10B981", fontWeight: 600, flexShrink: 0 }}>Stamped</div>}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
