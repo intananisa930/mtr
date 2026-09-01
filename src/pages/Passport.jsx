@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabase";
 import { DOMAINS, isEligible } from "../data";
@@ -16,33 +16,46 @@ const css = `
   .hdr-sub { font-size: 11px; color: #7C3AED; margin-top: 1px; }
   .hdr-badge { background: rgba(196,25,125,0.1); border: 1px solid rgba(196,25,125,0.3); padding: 5px 10px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #F9A8D4; flex-shrink: 0; font-family: 'Space Grotesk',sans-serif; }
   .page { padding: 20px; }
-  .progress-card { background: linear-gradient(135deg,rgba(26,13,46,0.9) 0%,rgba(124,58,237,0.1) 100%); border: 1px solid rgba(196,25,125,0.25); border-radius: 20px; padding: 22px; margin-bottom: 20px; position: relative; overflow: hidden; }
-  .progress-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle,rgba(196,25,125,0.15) 0%,transparent 70%); }
-  .prog-num { font-family: 'Space Grotesk',sans-serif; font-size: 40px; font-weight: 800; color: #fff; line-height: 1; }
-  .prog-num span { font-size: 20px; color: #6B4F8B; }
-  .prog-entries { font-family: 'Space Grotesk',sans-serif; font-size: 32px; font-weight: 800; color: #C4197D; line-height: 1; }
-  .elig-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 100px; margin-top: 8px; }
-  .elig-yes { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10B981; }
-  .elig-no { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); color: #7C3AED; }
-  .bar-bg { height: 5px; background: rgba(124,58,237,0.2); border-radius: 100px; overflow: hidden; margin-top: 16px; }
-  .bar-fill { height: 100%; background: linear-gradient(90deg,#C4197D,#7C3AED,#A78BFA); border-radius: 100px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
-  .rank-row { margin-top: 10px; font-size: 12px; color: #6B4F8B; text-align: center; }
-  .section-title { font-size: 11px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
   .type-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 100px; margin-bottom: 16px; }
   .type-staff { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: #60A5FA; }
   .type-guest { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #F59E0B; }
-  .domain-card { background: rgba(26,13,46,0.7); border: 1px solid rgba(124,58,237,0.15); border-radius: 16px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s; cursor: pointer; backdrop-filter: blur(4px); }
-  .domain-card:hover { border-color: rgba(196,25,125,0.3); }
-  .domain-card.open { border-color: rgba(196,25,125,0.4); }
-  .domain-card.visited { border-color: rgba(16,185,129,0.25); background: rgba(16,185,129,0.04); }
-  .domain-hdr { display: flex; align-items: center; gap: 12px; padding: 16px; }
-  .domain-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-  .domain-name { font-size: 14px; font-weight: 600; color: #F3E8FF; }
+
+  /* PROGRESS RING */
+  .ring-section { display: flex; align-items: center; gap: 20px; background: linear-gradient(135deg,rgba(26,13,46,0.9) 0%,rgba(124,58,237,0.1) 100%); border: 1px solid rgba(196,25,125,0.25); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+  .ring-container { position: relative; flex-shrink: 0; }
+  .ring-svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(124,58,237,0.15); stroke-width: 10; }
+  .ring-fill { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1); }
+  .ring-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+  .ring-num { font-family: 'Space Grotesk',sans-serif; font-size: 22px; font-weight: 800; color: #fff; line-height: 1; }
+  .ring-total { font-size: 9px; color: #6B4F8B; margin-top: 2px; }
+  .ring-info { flex: 1; }
+  .ring-title { font-size: 11px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .ring-entries { font-family: 'Space Grotesk',sans-serif; font-size: 28px; font-weight: 800; color: #C4197D; line-height: 1; }
+  .ring-entries-lbl { font-size: 11px; color: #6B4F8B; margin-top: 2px; }
+  .elig-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 100px; margin-top: 8px; }
+  .elig-yes { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10B981; }
+  .elig-no { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); color: #7C3AED; }
+  .rank-row { font-size: 11px; color: #6B4F8B; margin-top: 6px; }
+
+  /* HOW TO */
+  .how-box { background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.15); border-radius: 16px; padding: 16px 18px; margin-bottom: 20px; }
+  .how-title { font-size: 11px; font-weight: 600; color: #7C3AED; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .how-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .how-row:last-child { margin-bottom: 0; }
+
+  /* DOMAIN CARDS */
+  .section-title { font-size: 11px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .domain-card { border-radius: 16px; margin-bottom: 10px; overflow: hidden; transition: all 0.2s; cursor: pointer; border: 1px solid; }
+  .domain-hdr { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+  .domain-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; border: 1px solid; }
+  .domain-name { font-size: 14px; font-weight: 600; }
   .domain-prog { font-size: 11px; margin-top: 2px; }
   .stamp-dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
-  .stamp-dot { width: 6px; height: 6px; border-radius: 50%; transition: background 0.3s; }
-  .chevron { color: #4B3B6B; font-size: 11px; transition: transform 0.2s; margin-left: auto; flex-shrink: 0; }
-  .domain-card.open .chevron { transform: rotate(180deg); }
+  .stamp-dot { width: 7px; height: 7px; border-radius: 50%; transition: all 0.4s; }
+  .stamp-dot.just-stamped { animation: stampPop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes stampPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.4); } 100% { transform: scale(1); opacity: 1; } }
+  .chevron-icon { font-size: 11px; transition: transform 0.2s; margin-left: auto; flex-shrink: 0; }
   .tech-list { border-top: 1px solid rgba(124,58,237,0.1); padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
   .tech-row { display: flex; align-items: center; gap: 12px; background: rgba(10,6,18,0.5); border: 1px solid rgba(124,58,237,0.12); border-radius: 12px; padding: 12px 14px; }
   .tech-row.done { border-color: rgba(16,185,129,0.25); background: rgba(16,185,129,0.05); }
@@ -53,6 +66,13 @@ const css = `
   .tech-use { font-size: 11px; color: #6B4F8B; margin-top: 1px; }
   .btn-ghost { width: 100%; padding: 13px; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter',sans-serif; cursor: pointer; background: rgba(26,13,46,0.6); color: #9CA3AF; border: 1px solid rgba(124,58,237,0.2); transition: all 0.2s; margin-top: 10px; }
   .btn-ghost:hover { border-color: rgba(196,25,125,0.4); color: #E9D5FF; }
+
+  /* STAMP ANIMATION OVERLAY */
+  .stamp-anim-wrap { position: fixed; inset: 0; z-index: 50; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+  .stamp-anim { font-size: 80px; animation: stampSlam 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  @keyframes stampSlam { 0% { transform: scale(3) rotate(-15deg); opacity: 0; } 50% { opacity: 1; } 80% { transform: scale(0.95) rotate(2deg); } 100% { transform: scale(1) rotate(0); opacity: 0; } }
+
+  /* COMPLETION */
   .completion-overlay { position: fixed; inset: 0; background: rgba(5,3,10,0.95); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .completion-card { background: linear-gradient(135deg,rgba(26,13,46,0.95),rgba(124,58,237,0.1)); border: 2px solid rgba(196,25,125,0.4); border-radius: 28px; padding: 40px 28px; text-align: center; max-width: 400px; width: 100%; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
   @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -68,9 +88,12 @@ const css = `
   .loading-text { font-size: 14px; color: #6B4F8B; }
 `;
 
+const CIRC = 2 * Math.PI * 52;
+
 export default function Passport() {
   const [participant, setParticipant] = useState(null);
   const [stamps, setStamps] = useState([]);
+  const [prevStamps, setPrevStamps] = useState([]);
   const [eligible, setEligible] = useState(false);
   const [expandedDomain, setExpandedDomain] = useState(null);
   const [showCompletion, setShowCompletion] = useState(false);
@@ -78,11 +101,11 @@ export default function Passport() {
   const [notFound, setNotFound] = useState(false);
   const [rank, setRank] = useState(null);
   const [totalParticipants, setTotalParticipants] = useState(0);
+  const [stampAnim, setStampAnim] = useState(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const wristbandId = searchParams.get("id")?.toUpperCase() ||
-    localStorage.getItem("wristbandId");
+  const wristbandId = searchParams.get("id")?.toUpperCase() || localStorage.getItem("wristbandId");
 
   useEffect(() => {
     if (!wristbandId) { navigate("/"); return; }
@@ -91,41 +114,28 @@ export default function Passport() {
 
   const loadParticipant = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("participants")
-      .select("*")
-      .eq("wristband_id", wristbandId)
-      .single();
-
+    const { data } = await supabase.from("participants").select("*").eq("wristband_id", wristbandId).single();
     if (!data) { setNotFound(true); setLoading(false); return; }
-
     setParticipant(data);
     setStamps(data.stamps || []);
+    setPrevStamps(data.stamps || []);
     setEligible(data.eligible || false);
-
     localStorage.setItem("wristbandId", wristbandId);
     localStorage.setItem("staffId", data.staff_id);
 
-    // Load rank
-    const { data: allParticipants } = await supabase
-      .from("participants")
-      .select("staff_id, stamps")
-      .not("wristband_id", "is", null);
-
-    if (allParticipants) {
-      const sorted = [...allParticipants].sort((a, b) => b.stamps.length - a.stamps.length);
+    const { data: all } = await supabase.from("participants").select("staff_id, stamps").not("wristband_id", "is", null);
+    if (all) {
+      const sorted = [...all].sort((a, b) => b.stamps.length - a.stamps.length);
       const myRank = sorted.findIndex(p => p.staff_id === data.staff_id) + 1;
       setRank(myRank);
-      setTotalParticipants(allParticipants.length);
+      setTotalParticipants(all.length);
     }
-
     setLoading(false);
   };
 
   useEffect(() => {
     if (!wristbandId) return;
-    const channel = supabase
-      .channel("passport-live")
+    const channel = supabase.channel("passport-live")
       .on("postgres_changes", {
         event: "UPDATE", schema: "public", table: "participants",
         filter: `wristband_id=eq.${wristbandId}`,
@@ -133,19 +143,33 @@ export default function Passport() {
         const newStamps = payload.new.stamps || [];
         const wasEligible = eligible;
         const nowEligible = payload.new.eligible || false;
+
+        // Find new stamp and show animation
+        const added = newStamps.find(s => !stamps.includes(s));
+        if (added) {
+          const domain = DOMAINS.find(d => d.techs.some(t => t.id === added));
+          if (domain) {
+            setStampAnim(domain.icon);
+            setTimeout(() => setStampAnim(null), 800);
+          }
+        }
+
+        setPrevStamps(stamps);
         setStamps(newStamps);
         setEligible(nowEligible);
         if (nowEligible && !wasEligible) setShowCompletion(true);
       })
       .subscribe();
     return () => supabase.removeChannel(channel);
-  }, [wristbandId, eligible]);
+  }, [wristbandId, eligible, stamps]);
 
   const handleLogout = () => {
     localStorage.removeItem("wristbandId");
     localStorage.removeItem("staffId");
     navigate("/");
   };
+
+  const ringOffset = CIRC - (CIRC * Math.min(stamps.length / 38, 1));
 
   if (loading) return (
     <>
@@ -173,6 +197,14 @@ export default function Passport() {
         <svg><defs><pattern id="dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#C4197D" /></pattern></defs><rect width="100%" height="100%" fill="url(#dots)" /></svg>
       </div>
 
+      {/* Stamp animation overlay */}
+      {stampAnim && (
+        <div className="stamp-anim-wrap">
+          <div className="stamp-anim">{stampAnim}</div>
+        </div>
+      )}
+
+      {/* Completion overlay */}
       {showCompletion && (
         <div className="completion-overlay">
           <div className="completion-card">
@@ -196,7 +228,7 @@ export default function Passport() {
           <div className="hdr-logo">MIMOS</div>
           <div style={{ flex: 1 }}>
             <div className="hdr-title">Innovation Passport</div>
-            <div className="hdr-sub">{wristbandId} {participant?.display_name ? `· ${participant.display_name}` : ""}</div>
+            <div className="hdr-sub">{wristbandId}{participant?.display_name ? ` · ${participant.display_name}` : ""}</div>
           </div>
           <div className="hdr-badge">{stamps.length} / 38 🎖️</div>
         </div>
@@ -206,83 +238,113 @@ export default function Passport() {
             {participant?.participant_type === "guest" ? "External Guest" : "MIMOS Staff"}
           </div>
 
-          <div className="progress-card">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
-                <div className="section-title">Stamps Collected</div>
-                <div className="prog-num">{stamps.length}<span> / 38</span></div>
-                <div className={`elig-badge ${eligible ? "elig-yes" : "elig-no"}`}>
-                  {eligible ? "✓ Eligible for Lucky Draw" : "Visit at least 1 booth in each domain and collect 10 stamps"}
+          {/* Progress Ring */}
+          <div className="ring-section">
+            <div className="ring-container">
+              <svg className="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#C4197D" />
+                    <stop offset="100%" stopColor="#7C3AED" />
+                  </linearGradient>
+                </defs>
+                <circle className="ring-bg" cx="60" cy="60" r="52" />
+                <circle className="ring-fill" cx="60" cy="60" r="52"
+                  stroke={eligible ? "#10B981" : "url(#ringGrad)"}
+                  strokeDasharray={CIRC}
+                  strokeDashoffset={ringOffset}
+                />
+              </svg>
+              <div className="ring-center">
+                <div className="ring-num">{stamps.length}</div>
+                <div className="ring-total">of 38</div>
+              </div>
+            </div>
+            <div className="ring-info">
+              <div className="ring-title">Lucky Draw</div>
+              <div className="ring-entries">{stamps.length}</div>
+              <div className="ring-entries-lbl">{stamps.length === 1 ? "entry" : "entries"}</div>
+              <div className={`elig-badge ${eligible ? "elig-yes" : "elig-no"}`}>
+                {eligible ? "✓ Eligible!" : "Visit all 6 domains + 10 stamps"}
+              </div>
+              {rank && totalParticipants > 1 && (
+                <div className="rank-row">
+                  🏅 Ranked <strong style={{ color: "#C4197D" }}>#{rank}</strong> of {totalParticipants}
                 </div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div className="section-title">Lucky Draw</div>
-                <div className="prog-entries">{stamps.length}</div>
-                <div style={{ fontSize: 11, color: "#6B4F8B", marginTop: 4 }}>entries</div>
-              </div>
+              )}
             </div>
-            <div className="bar-bg">
-              <div className="bar-fill" style={{ width: `${(stamps.length / 38) * 100}%` }} />
-            </div>
-            {rank && totalParticipants > 1 && (
-              <div className="rank-row">
-                🏅 You are ranked <strong style={{ color: "#C4197D" }}>#{rank}</strong> out of <strong style={{ color: "#E9D5FF" }}>{totalParticipants}</strong> participants
-              </div>
-            )}
           </div>
 
+          {/* How it works — only when 0 stamps */}
           {stamps.length === 0 && (
-            <div style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.15)", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: "#7C3AED", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>How to collect stamps</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[
-                  { icon: "🏃", text: "Visit any booth across the 6 domains below" },
-                  { icon: "🎯", text: "Complete the challenge at the booth" },
-                  { icon: "📷", text: "Ask the exhibitor to scan your wristband QR" },
-                  { icon: "🎰", text: "Visit all 6 domains + 10 stamps = eligible for lucky draw!" },
-                ].map((s, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <span style={{ fontSize: 16, flexShrink: 0 }}>{s.icon}</span>
-                    <span style={{ fontSize: 12, color: "#9CA3AF", lineHeight: 1.5 }}>{s.text}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="how-box">
+              <div className="how-title">How to collect stamps</div>
+              {[
+                { icon: "🏃", text: "Visit any booth across the 6 domains below" },
+                { icon: "🎯", text: "Complete the challenge at the booth" },
+                { icon: "📷", text: "Ask the exhibitor to scan your wristband" },
+                { icon: "🎰", text: "Visit all 6 domains + 10 stamps = lucky draw!" },
+              ].map((s, i) => (
+                <div key={i} className="how-row">
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{s.icon}</span>
+                  <span style={{ fontSize: 12, color: "#9CA3AF", lineHeight: 1.5 }}>{s.text}</span>
+                </div>
+              ))}
             </div>
           )}
 
+          {/* Domain Cards */}
           <div className="section-title">6 Solution Domains</div>
           {DOMAINS.map(domain => {
             const ds = stamps.filter(s => domain.techs.some(t => t.id === s));
             const isOpen = expandedDomain === domain.id;
             const isVisited = ds.length > 0;
+
             return (
-              <div key={domain.id} className={`domain-card ${isOpen ? "open" : ""} ${isVisited ? "visited" : ""}`}>
+              <div key={domain.id} className="domain-card"
+                style={{
+                  background: isVisited ? domain.colorBg : "rgba(26,13,46,0.7)",
+                  borderColor: isVisited ? domain.colorBorder : "rgba(124,58,237,0.15)",
+                }}>
                 <div className="domain-hdr" onClick={() => setExpandedDomain(isOpen ? null : domain.id)}>
-                  <div className="domain-icon" style={{
-                    background: isVisited ? "rgba(16,185,129,0.15)" : domain.colorBg,
-                    border: `1px solid ${isVisited ? "rgba(16,185,129,0.3)" : domain.colorBorder}`
-                  }}>
+                  <div className="domain-icon"
+                    style={{ background: domain.colorBg, borderColor: domain.colorBorder }}>
                     {domain.icon}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div className="domain-name">{domain.name}</div>
-                    <div className="domain-prog" style={{ color: isVisited ? "#10B981" : "#4B3B6B" }}>
+                    <div className="domain-name" style={{ color: isVisited ? domain.color : "#F3E8FF" }}>
+                      {domain.name}
+                    </div>
+                    <div className="domain-prog" style={{ color: isVisited ? domain.color : "#4B3B6B" }}>
                       {ds.length}/{domain.techs.length} stamps
                       {isVisited && <span style={{ marginLeft: 6, fontSize: 10 }}>✓ visited</span>}
                       {!isVisited && <span style={{ marginLeft: 6, fontSize: 10, color: "#4B3B6B" }}>· not visited yet</span>}
                     </div>
                     <div className="stamp-dots">
-                      {domain.techs.map(t => (
-                        <div key={t.id} className="stamp-dot" style={{
-                          background: stamps.includes(t.id)
-                            ? "#10B981"
-                            : isVisited ? "rgba(16,185,129,0.2)" : "rgba(124,58,237,0.15)"
-                        }} />
-                      ))}
+                      {domain.techs.map(t => {
+                        const isNew = stamps.includes(t.id) && !prevStamps.includes(t.id);
+                        return (
+                          <div key={t.id}
+                            className={`stamp-dot ${isNew ? "just-stamped" : ""}`}
+                            style={{
+                              background: stamps.includes(t.id)
+                                ? domain.color
+                                : isVisited ? `${domain.color}33` : "rgba(124,58,237,0.15)"
+                            }}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
-                  <div className="chevron">▼</div>
+                  <div className="chevron-icon"
+                    style={{
+                      color: isVisited ? domain.color : "#4B3B6B",
+                      transform: isOpen ? "rotate(180deg)" : "none",
+                    }}>
+                    {isVisited ? "✓" : "▼"}
+                  </div>
                 </div>
+
                 {isOpen && (
                   <div className="tech-list">
                     {domain.techs.map(tech => {
