@@ -339,7 +339,7 @@ export default function Passport() {
                   <div className="chevron-icon"
                     style={{
                       color: isVisited ? domain.color : "#4B3B6B",
-                      transform: isOpen ? "rotate(180deg)" : "none",
+                      transform: isVisited ? "none" : isOpen ? "rotate(180deg)" : "none",
                     }}>
                     {isVisited ? "✓" : "▼"}
                   </div>
