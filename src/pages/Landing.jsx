@@ -13,19 +13,19 @@ const css = `
   .logo { display: inline-block; background: #C4197D; color: #fff; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 13px; padding: 5px 10px; border-radius: 6px; margin-bottom: 20px; letter-spacing: 1px; }
   .eyebrow { display: inline-flex; align-items: center; gap: 6px; background: rgba(196,25,125,0.1); border: 1px solid rgba(196,25,125,0.3); color: #F9A8D4; font-size: 11px; font-weight: 600; padding: 5px 14px; border-radius: 100px; margin-bottom: 24px; letter-spacing: 1px; text-transform: uppercase; }
   .h1 { font-family: 'Space Grotesk',sans-serif; font-size: 30px; font-weight: 800; line-height: 1.1; margin-bottom: 24px; background: linear-gradient(135deg,#fff 0%,#E9D5FF 50%,#C4197D 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .mission { font-size: 14px; color: #9CA3AF; line-height: 1.7; margin-bottom: 28px; }
+  .mission { font-size: 16px; color: #9CA3AF; line-height: 1.8; margin-bottom: 28px; }
   .domain-icons { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
   .domain-pill { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
   .how-it-works { margin-bottom: 28px; }
-  .how-title { font-size: 11px; font-weight: 600; color: #6B4F8B; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 16px; }
+  .how-title { font-size: 13px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 16px; }
   .steps { display: flex; flex-direction: column; gap: 0; }
   .step { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(124,58,237,0.08); }
   .step:last-child { border-bottom: none; }
-  .step-num { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#C4197D,#7C3AED); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0; margin-top: 2px; }
-  .step-icon { font-size: 20px; flex-shrink: 0; margin-top: 4px; }
-  .step-title { font-size: 13px; font-weight: 700; color: #F3E8FF; margin-bottom: 3px; }
-  .step-desc { font-size: 12px; color: #6B4F8B; line-height: 1.5; }
+  .step-num { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#C4197D,#7C3AED); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk',sans-serif; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; margin-top: 2px; }
+  .step-icon { font-size: 24px; flex-shrink: 0; margin-top: 4px; }
+  .step-title { font-size: 16px; font-weight: 700; color: #F3E8FF; margin-bottom: 5px; }
+  .step-desc { font-size: 14px; color: #9CA3AF; line-height: 1.6; }
 
   .card { background: rgba(26,13,46,0.8); border: 1px solid rgba(196,25,125,0.2); border-radius: 20px; padding: 28px; backdrop-filter: blur(8px); }
   .flabel { font-size: 11px; font-weight: 600; color: #7C3AED; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: block; }
@@ -39,7 +39,7 @@ const css = `
   .hint { text-align: center; margin-top: 14px; font-size: 12px; color: #4B3B6B; }
   .hint a { color: #7C3AED; text-decoration: none; font-weight: 600; }
   .scan-hint { background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.15); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; text-align: center; }
-  .scan-hint-text { font-size: 12px; color: #6B4F8B; line-height: 1.6; }
+  .scan-hint-text { font-size: 14px; color: #9CA3AF; line-height: 1.7; }
 `;
 
 const DOMAINS = [
