@@ -159,7 +159,7 @@ export default function Draw() {
       if (b.r > 14) {
         ctx.font = `${Math.max(5, fs - 1)}px Inter`;
         ctx.fillStyle = "rgba(255,255,255,0.85)";
-        ctx.fillText(`${b.p.stamps?.length || 0} 🎖️`, b.x, b.y + b.r * 0.3);
+        ctx.fillText(`${b.p.stamps?.length || 0} 🔖`, b.x, b.y + b.r * 0.3);
       }
     }
     ctx.restore();
