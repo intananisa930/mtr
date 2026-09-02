@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { isEligible } from "../data";
 
-const EXTRA_COLORS = ["#FF6B6B","#FFD93D","#6BCB77","#4D96FF","#FF6FCF","#FF9F43","#A8E6CF","#FF8B94","#B5EAD7","#C7CEEA","#FFDAC1","#E2F0CB","#FF6B6B","#FFD93D","#6BCB77","#4D96FF"];
-const BALL_COLORS = ["#E8334A","#F59E0B","#10B981","#3B82F6","#C4197D","#F97316","#84CC16","#EC4899","#38BDF8","#8B5CF6","#06B6D4","#7C3AED"];
+const BALL_COLORS = ["#E8334A","#F59E0B","#10B981","#3B82F6","#C4197D","#F97316","#84CC16","#EC4899","#38BDF8","#8B5CF6","#06B6D4","#7C3AED","#FF6B6B","#FFD93D","#6BCB77","#4D96FF","#FF6FCF","#FF9F43","#A8E6CF","#FF8B94"];
 
 const CW = 380, CH = 420;
 const MX=25,MY=10,MW=330,MH=370;
@@ -13,7 +12,8 @@ const INNER_X=MX+WALL,INNER_Y=MY+52,INNER_W=MW-WALL*2,INNER_H=MH-65;
 const FLOOR_Y=INNER_Y+INNER_H;
 const RAIL_Y=MY+32;
 const RAIL_X1=INNER_X+10,RAIL_X2=INNER_X+INNER_W-10;
-const BR=26;
+
+function calcRadius(count){ return Math.max(8, Math.min(26, Math.floor(220/Math.sqrt(Math.max(count,1)))/2)); }
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap');
@@ -94,17 +94,18 @@ export default function Draw() {
   };
 
   const buildBalls = (eligList) => {
-    const all = [];
-    eligList.forEach((p, i) => all.push({ real: true, p, color: BALL_COLORS[i % BALL_COLORS.length] }));
-    for (let i = 0; i < 16; i++) all.push({ real: false, color: EXTRA_COLORS[i % EXTRA_COLORS.length] });
+    const r = calcRadius(eligList.length);
+    const all = eligList.map((p, i) => ({ real: true, p, color: BALL_COLORS[i % BALL_COLORS.length] }));
     all.sort(() => Math.random() - 0.5);
+
     const balls = all.map(b => ({
-      x: INNER_X + BR + 5 + Math.random() * (INNER_W - BR * 2 - 10),
-      y: INNER_Y + BR + Math.random() * 20,
+      x: INNER_X + r + 5 + Math.random() * (INNER_W - r * 2 - 10),
+      y: INNER_Y + r + Math.random() * 20,
       vx: (Math.random() - 0.5) * 2, vy: Math.random() * 2,
       color: b.color, p: b.real ? b.p : null,
-      r: BR, grabbed: false, real: b.real, ox: 0, oy: 0,
+      r, grabbed: false, real: b.real, ox: 0, oy: 0,
     }));
+
     for (let step = 0; step < 500; step++) {
       balls.forEach(b => {
         b.vy += 0.5; b.x += b.vx; b.y += b.vy; b.vx *= 0.8; b.vy *= 0.8;
@@ -151,10 +152,15 @@ export default function Draw() {
     s.addColorStop(0, "rgba(255,255,255,0.55)"); s.addColorStop(1, "rgba(255,255,255,0)");
     ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fillStyle = s; ctx.fill();
     if (b.real && b.p) {
+      const fs = Math.max(5, Math.floor(b.r * 0.38));
       ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.font = "bold 9px Inter"; ctx.fillText(b.p.wristband_id || "", b.x, b.y - 5.5);
-      ctx.font = "6.5px Inter"; ctx.fillStyle = "rgba(255,255,255,0.85)";
-      ctx.fillText((b.p.display_name || b.p.name || "").split(" ")[0], b.x, b.y + 6);
+      ctx.font = `bold ${fs}px Inter`;
+      ctx.fillText(b.p.wristband_id || "", b.x, b.r > 14 ? b.y - b.r * 0.2 : b.y);
+      if (b.r > 14) {
+        ctx.font = `${Math.max(5, fs - 2)}px Inter`;
+        ctx.fillStyle = "rgba(255,255,255,0.85)";
+        ctx.fillText((b.p.display_name || b.p.name || "").split(" ")[0], b.x, b.y + b.r * 0.35);
+      }
     }
     ctx.restore();
   };
@@ -189,6 +195,9 @@ export default function Draw() {
     hg.addColorStop(0, "rgba(155,75,230,1)"); hg.addColorStop(1, "rgba(85,28,150,1)");
     ctx.fillStyle = hg; ctx.strokeStyle = "rgba(196,25,125,1)"; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.roundRect(x - hw / 2, headY, hw, hh, 8); ctx.fill(); ctx.stroke();
+    [[x - 18, headY + hh / 2], [x, headY + hh / 2], [x + 18, headY + hh / 2]].forEach(([rx, ry]) => {
+      ctx.fillStyle = "rgba(255,160,215,0.5)"; ctx.beginPath(); ctx.arc(rx, ry, 3.5, 0, Math.PI * 2); ctx.fill();
+    });
     drawArm(ctx, x, headY + hh, -1, grip);
     drawArm(ctx, x, headY + hh, 1, grip);
     ctx.restore();
@@ -198,6 +207,8 @@ export default function Draw() {
     ctx.save();
     ctx.strokeStyle = "rgba(196,25,125,0.9)"; ctx.lineWidth = 9; ctx.lineCap = "round";
     ctx.beginPath(); ctx.moveTo(RAIL_X1, RAIL_Y); ctx.lineTo(RAIL_X2, RAIL_Y); ctx.stroke();
+    ctx.strokeStyle = "rgba(255,190,225,0.4)"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(RAIL_X1, RAIL_Y - 2); ctx.lineTo(RAIL_X2, RAIL_Y - 2); ctx.stroke();
     for (let rx = RAIL_X1 + 20; rx < RAIL_X2 - 10; rx += 38) {
       ctx.fillStyle = "rgba(255,130,195,0.7)"; ctx.beginPath(); ctx.arc(rx, RAIL_Y, 5, 0, Math.PI * 2); ctx.fill();
     }
@@ -237,7 +248,6 @@ export default function Draw() {
     const cl = clRef.current;
     const wb = winBallRef.current;
     const p = phaseRef.current;
-
     if (p === "swinging") {
       cl.swingAngle += 0.032 * cl.swingDir;
       if (Math.abs(cl.swingAngle) > 0.55) cl.swingDir *= -1;
@@ -264,7 +274,7 @@ export default function Draw() {
     }
     if (p === "lifting") {
       cl.wireLen -= 5;
-      if (wb) { wb.x = cl.x; wb.y = RAIL_Y + cl.wireLen + 26 + BR + 4; }
+      if (wb) { wb.x = cl.x; wb.y = RAIL_Y + cl.wireLen + 26 + wb.r + 4; }
       if (cl.wireLen <= 18) {
         cl.wireLen = 18; phaseRef.current = "holding";
         setTimeout(() => {
@@ -280,15 +290,12 @@ export default function Draw() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-
     const render = () => {
       ctx.clearRect(0, 0, CW, CH);
       const bg = ctx.createLinearGradient(0, 0, 0, CH);
       bg.addColorStop(0, "#100525"); bg.addColorStop(1, "#060215");
       ctx.fillStyle = bg; ctx.fillRect(0, 0, CW, CH);
-
       drawMachine(ctx);
-
       ctx.save();
       ctx.beginPath(); ctx.rect(INNER_X + 2, INNER_Y + 2, INNER_W - 4, INNER_H - 4); ctx.clip();
       updateClaw();
@@ -297,14 +304,12 @@ export default function Draw() {
       drawClaw(ctx, clRef.current);
       ballsRef.current.filter(b => b.grabbed).forEach(b => drawBall(ctx, b));
       ctx.restore();
-
       ctx.save();
       ctx.beginPath(); ctx.roundRect(INNER_X, INNER_Y, INNER_W, INNER_H, 8); ctx.clip();
       const rg = ctx.createLinearGradient(INNER_X, INNER_Y, INNER_X + 50, INNER_Y + INNER_H);
       rg.addColorStop(0, "rgba(255,255,255,0.07)"); rg.addColorStop(0.4, "rgba(255,255,255,0)");
       ctx.fillStyle = rg; ctx.fillRect(INNER_X, INNER_Y, INNER_W, INNER_H);
       ctx.restore();
-
       animRef.current = requestAnimationFrame(render);
     };
     render();
