@@ -43,6 +43,8 @@ const css = `
   .recent-wb { font-size: 13px; font-weight: 700; color: #C4197D; width: 44px; flex-shrink: 0; }
   .recent-name { font-size: 13px; color: #E9D5FF; flex: 1; }
   .recent-type { font-size: 11px; color: #6B4F8B; }
+  .btn-delete-small { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); color: #F87171; border-radius: 6px; padding: 3px 8px; font-size: 10px; cursor: pointer; font-family: 'Inter',sans-serif; transition: all 0.15s; white-space: nowrap; }
+  .btn-delete-small:hover { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.4); }
   .count-box { background: rgba(196,25,125,0.06); border: 1px solid rgba(196,25,125,0.2); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
   .count-label { font-size: 11px; color: #6B4F8B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
   .count-num { font-family: 'Space Grotesk',sans-serif; font-size: 36px; font-weight: 800; color: #C4197D; }
@@ -170,6 +172,14 @@ export default function Register() {
     setError(null);
   };
 
+  const handleDelete = async (wristbandId, staffId) => {
+    if (!window.confirm(`Delete ${wristbandId}? This cannot be undone.`)) return;
+    await supabase.from("stamp_log").delete().eq("staff_id", staffId);
+    await supabase.from("participants").delete().eq("wristband_id", wristbandId);
+    await getNextWristband();
+    await loadRecent();
+  };
+
   // PIN screen
   if (!unlocked) return (
     <>
@@ -270,6 +280,7 @@ export default function Register() {
                   <div className="recent-wb">{p.wristband_id}</div>
                   <div className="recent-name">{p.display_name || "—"}</div>
                   <div className="recent-type">{p.participant_type === "staff" ? "Staff" : "Guest"}</div>
+                  <button className="btn-delete-small" onClick={() => handleDelete(p.wristband_id, p.staff_id)}>Delete</button>
                 </div>
               ))}
             </div>
