@@ -155,11 +155,11 @@ export default function Draw() {
       const fs = Math.max(5, Math.floor(b.r * 0.38));
       ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.font = `bold ${fs}px Inter`;
-      ctx.fillText(b.p.wristband_id || "", b.x, b.r > 14 ? b.y - b.r * 0.2 : b.y);
+      ctx.fillText(b.p.wristband_id || "", b.x, b.r > 14 ? b.y - b.r * 0.25 : b.y);
       if (b.r > 14) {
-        ctx.font = `${Math.max(5, fs - 2)}px Inter`;
+        ctx.font = `${Math.max(5, fs - 1)}px Inter`;
         ctx.fillStyle = "rgba(255,255,255,0.85)";
-        ctx.fillText((b.p.display_name || b.p.name || "").split(" ")[0], b.x, b.y + b.r * 0.35);
+        ctx.fillText(`${b.p.stamps?.length || 0} 🎖️`, b.x, b.y + b.r * 0.3);
       }
     }
     ctx.restore();
@@ -375,7 +375,7 @@ export default function Draw() {
         <div className="stats-row">
           <div className="stat"><div className="stat-n" style={{ color: "#fff" }}>{eligible.length}</div><div className="stat-l">Eligible</div></div>
           <div className="stat"><div className="stat-n" style={{ color: "#C4197D" }}>{winners.length}</div><div className="stat-l">Winners</div></div>
-          <div className="stat"><div className="stat-n" style={{ color: "#F59E0B" }}>{eligRef.current.length}</div><div className="stat-l">Remaining</div></div>
+          <div className="stat"><div className="stat-n" style={{ color: "#F59E0B" }}>{eligible.reduce((sum, p) => sum + p.stamps.length, 0)}</div><div className="stat-l">Total Entries</div></div>
         </div>
 
         {loading ? (
