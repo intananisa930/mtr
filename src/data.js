@@ -90,3 +90,120 @@ export function isEligible(stamps) {
   const hasEnoughStamps = stamps.length >= 10;
   return visitedAllDomains && hasEnoughStamps;
 }
+
+export const QUIZ_QUESTIONS = {
+  mimos: [
+    {
+      text: "What is the primary role of MIMOS Berhad in Malaysia?",
+      options: ["Mobile phone manufacturer", "National ICT R&D centre", "Social media platform", "Cloud hosting provider"],
+      correct: 1,
+      explain: "MIMOS Berhad is Malaysia's national ICT research and development centre, driving innovation for national development.",
+    },
+    {
+      text: "Under which Malaysian ministry does MIMOS operate?",
+      options: ["Ministry of Health", "Ministry of Digital", "Ministry of Finance", "Ministry of Education"],
+      correct: 1,
+      explain: "MIMOS operates under the Ministry of Digital, supporting Malaysia's digital economy agenda.",
+    },
+    {
+      text: "What does MTR stand for?",
+      options: ["Malaysian Tech Review", "MIMOS Technology Roadshow", "Modern Technology Research", "Malaysian Tech Rally"],
+      correct: 1,
+      explain: "MTR stands for MIMOS Technology Roadshow — an annual showcase of MIMOS innovations.",
+    },
+    {
+      text: "Where is MIMOS headquartered?",
+      options: ["Johor Bahru", "Penang", "Technology Park Malaysia, KL", "Cyberjaya"],
+      correct: 2,
+      explain: "MIMOS Berhad is headquartered in Technology Park Malaysia, Kuala Lumpur.",
+    },
+    {
+      text: "What type of organisation is MIMOS?",
+      options: ["Private company", "Government-linked company", "NGO", "University"],
+      correct: 1,
+      explain: "MIMOS is a government-linked company (GLC) under the Ministry of Digital Malaysia.",
+    },
+  ],
+  tech: [
+    {
+      text: "Which MIMOS technology monitors palm oil Fresh Fruit Bunch quality?",
+      options: ["Mi-NEXA", "Mi-TEMS", "INSPECTRA", "Bioscan"],
+      correct: 2,
+      explain: "INSPECTRA uses AI to assess the quality of Fresh Fruit Bunches (FFB) in palm oil production.",
+    },
+    {
+      text: "Mi-FaceIQ is best described as:",
+      options: ["Weather prediction system", "AI identity verification", "Soil analysis tool", "Water quality monitor"],
+      correct: 1,
+      explain: "Mi-FaceIQ is MIMOS's AI-powered face recognition technology for identity verification.",
+    },
+    {
+      text: "Which technology performs predictive equipment monitoring in factories?",
+      options: ["REVA", "Mi-TEMS", "Mi-KidzAlert", "Digital QKD"],
+      correct: 1,
+      explain: "Mi-TEMS uses AI for predictive maintenance and equipment monitoring in smart manufacturing.",
+    },
+    {
+      text: "What does REVA primarily do?",
+      options: ["Surgical assistance", "Non-invasive health screening", "Drug manufacturing", "Hospital management"],
+      correct: 1,
+      explain: "REVA uses advanced sensors for non-invasive health screening without needles or invasive procedures.",
+    },
+    {
+      text: "Which MIMOS technology provides Smart City IoT connectivity?",
+      options: ["INSPECTRA", "Mi-NEXA", "Mi-TEMS", "Bioscan"],
+      correct: 1,
+      explain: "Mi-NEXA is MIMOS's Smart City IoT connectivity platform.",
+    },
+    {
+      text: "Mi-KidzAlert is designed for:",
+      options: ["Factory monitoring", "Student attendance and child safety", "Agriculture", "Cybersecurity"],
+      correct: 1,
+      explain: "Mi-KidzAlert is a smart attendance and child safety monitoring system for schools.",
+    },
+    {
+      text: "What does Bioscan use to detect diseases?",
+      options: ["Blood samples", "X-rays", "Saliva samples", "Urine samples"],
+      correct: 2,
+      explain: "Bioscan uses AI to analyse saliva samples for non-invasive disease detection.",
+    },
+  ],
+  industry: [
+    {
+      text: "Which industry benefits most from automated visual inspection like Mi-VisionAOI?",
+      options: ["Tourism", "Manufacturing", "Education", "Hospitality"],
+      correct: 1,
+      explain: "Mi-VisionAOI detects defects on production lines — most valuable in manufacturing quality control.",
+    },
+    {
+      text: "A plantation wants to automate FFB weighing. Which technology?",
+      options: ["Mi-NEXA", "Mi-SWIS", "AIREM", "Mi-ACE"],
+      correct: 1,
+      explain: "Mi-SWIS (Smart Weighbridge Integrated System) automates FFB weighing at plantations.",
+    },
+    {
+      text: "A hospital wants AI diagnostics using saliva. Which booth?",
+      options: ["INSPECTRA", "Mi-PlateIQ", "Bioscan", "Mi-Safety"],
+      correct: 2,
+      explain: "Bioscan enables non-invasive disease detection through saliva sample analysis.",
+    },
+    {
+      text: "A smart building wants to optimise chiller energy. Which technology?",
+      options: ["Mi-NEXA", "Mi-PlateIQ", "Mi-ACE", "Digital QKD"],
+      correct: 2,
+      explain: "Mi-ACE intelligently manages chiller systems to reduce energy consumption in smart buildings.",
+    },
+    {
+      text: "Which sector benefits most from Mi-Muallim?",
+      options: ["Manufacturing", "Agriculture", "Education", "Healthcare"],
+      correct: 2,
+      explain: "Mi-Muallim is an AI-powered educational tool designed to support the education sector.",
+    },
+    {
+      text: "Digital QKD is most relevant to which industry?",
+      options: ["Food processing", "Cybersecurity and secure communications", "Agriculture", "Retail"],
+      correct: 1,
+      explain: "Digital QKD (Quantum Key Distribution) provides quantum-safe encryption for secure communications.",
+    },
+  ],
+};
