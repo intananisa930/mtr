@@ -217,6 +217,13 @@ export default function Booth() {
       const eligible = isEligible(newStamps);
       await supabase.from("participants").update({ stamps: newStamps, eligible, last_updated: new Date().toISOString() }).eq("wristband_id", wristbandId);
       await supabase.from("stamp_log").insert({ staff_id: participant.staff_id, booth_id: boothId });
+      const { data: current } = await supabase.from("exhibitor_scores").select("*").eq("booth_id", boothId).single();
+      if (current) {
+        await supabase.from("exhibitor_scores").update({
+          questions_unlocked: (current.questions_unlocked || 0) + 1,
+          updated_at: new Date().toISOString(),
+        }).eq("booth_id", boothId);
+      }
       setScanResult({ wristbandId, name: participant.display_name || participant.name || "", eligible, totalStamps: newStamps.length });
       setScanHistory(prev => [{ wristbandId, name: participant.display_name || participant.name || "", time: new Date().toLocaleTimeString() }, ...prev.slice(0, 4)]);
       setStampCount(prev => prev + 1);
