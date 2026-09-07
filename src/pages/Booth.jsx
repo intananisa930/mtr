@@ -15,7 +15,7 @@ const css = `
   .booth-header { text-align: center; margin-bottom: 20px; }
   .domain-badge { display: inline-block; font-size: 11px; font-weight: 600; color: #A78BFA; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); padding: 4px 12px; border-radius: 100px; }
   .booth-name { font-family: 'Space Grotesk',sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; text-align: center; }
-  .booth-use { font-size: 13px; color: #6B4F8B; margin-bottom: 0; text-align: center; }
+  .booth-use { font-size: 13px; color: #6B4F8B; text-align: center; }
   .card { background: rgba(26,13,46,0.8); border: 1px solid rgba(196,25,125,0.2); border-radius: 20px; padding: 24px; backdrop-filter: blur(8px); margin-bottom: 16px; }
   .card-title { font-size: 14px; font-weight: 600; color: #F3E8FF; margin-bottom: 16px; text-align: center; }
   .pin-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
@@ -25,12 +25,12 @@ const css = `
   .num-btn { background: rgba(26,13,46,0.6); border: 1px solid rgba(124,58,237,0.2); border-radius: 12px; padding: 14px; font-size: 18px; font-weight: 600; color: #E9D5FF; cursor: pointer; font-family: 'Space Grotesk',sans-serif; transition: all 0.15s; text-align: center; }
   .num-btn:hover { border-color: rgba(196,25,125,0.4); background: rgba(196,25,125,0.1); }
   .num-btn.del { font-size: 14px; color: #9CA3AF; }
-  .btn-primary { width: 100%; padding: 15px; border-radius: 14px; font-size: 15px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#C4197D,#7C3AED); color: #fff; transition: all 0.2s; letter-spacing: 0.3px; margin-bottom: 10px; }
+  .btn-primary { width: 100%; padding: 15px; border-radius: 14px; font-size: 15px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#C4197D,#7C3AED); color: #fff; transition: all 0.2s; margin-bottom: 10px; display: block; }
   .btn-primary:hover { transform: translateY(-2px); }
   .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-green { width: 100%; padding: 13px; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#10B981,#059669); color: #fff; margin-bottom: 8px; display: block; }
   .btn-ghost { width: 100%; padding: 13px; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter',sans-serif; cursor: pointer; background: rgba(26,13,46,0.6); color: #9CA3AF; border: 1px solid rgba(124,58,237,0.2); transition: all 0.2s; margin-bottom: 8px; display: block; }
   .btn-ghost:hover { border-color: rgba(196,25,125,0.4); color: #E9D5FF; }
-  .btn-green { width: 100%; padding: 13px; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'Inter',sans-serif; cursor: pointer; border: none; background: linear-gradient(135deg,#10B981,#059669); color: #fff; margin-bottom: 8px; display: block; }
   .err { color: #F87171; font-size: 13px; margin-bottom: 14px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); padding: 10px 14px; border-radius: 10px; text-align: center; }
   .stamp-count { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .sc-label { font-size: 12px; color: #6B7280; }
@@ -46,7 +46,6 @@ const css = `
   .scan-wb { font-size: 13px; font-weight: 700; color: #C4197D; width: 50px; flex-shrink: 0; }
   .scan-name { font-size: 13px; color: #E9D5FF; flex: 1; }
   .scan-time { font-size: 10px; color: #4B3B6B; }
-  .result-wrap { text-align: center; padding: 10px 0; }
   .result-emoji { font-size: 56px; display: block; margin-bottom: 16px; animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
   @keyframes pop { from { transform: scale(0) rotate(-20deg); } to { transform: scale(1) rotate(0); } }
   .result-title { font-family: 'Space Grotesk',sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
@@ -90,8 +89,7 @@ const css = `
   .lb-rank { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; }
   .prog-bar { height: 3px; background: rgba(124,58,237,0.1); border-radius: 100px; overflow: hidden; margin-top: 4px; }
   .prog-fill { height: 100%; border-radius: 100px; }
-  .challenge-box { background: linear-gradient(135deg,rgba(196,25,125,0.08),rgba(124,58,237,0.06)); border: 2px solid rgba(196,25,125,0.3); border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 12px; }
-  .done-box { text-align: center; padding: 20px 0; }
+  .unlock-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
 `;
 
 const DotGrid = () => (
@@ -106,8 +104,8 @@ const CAT_INFO = {
   industry: { label: "Industry & Applications", color: "#F59E0B", bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.3)", icon: "🏭" },
 };
 
-const RANK_BG = ["rgba(212,175,55,0.25)", "rgba(192,192,192,0.25)", "rgba(205,127,50,0.25)", "rgba(124,58,237,0.2)", "rgba(59,130,246,0.2)"];
-const RANK_COLOR = ["#D4AF37", "#C0C0C0", "#CD7F32", "#A78BFA", "#60A5FA"];
+const RANK_BG = ["rgba(212,175,55,0.25)","rgba(192,192,192,0.25)","rgba(205,127,50,0.25)","rgba(124,58,237,0.2)","rgba(59,130,246,0.2)"];
+const RANK_COLOR = ["#D4AF37","#C0C0C0","#CD7F32","#A78BFA","#60A5FA"];
 
 export default function Booth() {
   const { boothId } = useParams();
@@ -122,14 +120,14 @@ export default function Booth() {
   const [stampCount, setStampCount] = useState(0);
   const [visitors, setVisitors] = useState([]);
   const [activeTab, setActiveTab] = useState("scanner");
+  const [myScore, setMyScore] = useState(null);
 
   // Quiz state
-  const [quizView, setQuizView] = useState("home"); // home | category | question | done
-  const [quizMode, setQuizMode] = useState("self"); // self | participant
+  const [quizView, setQuizView] = useState("home");
+  const [quizMode, setQuizMode] = useState("self");
   const [currentCat, setCurrentCat] = useState(null);
   const [currentQ, setCurrentQ] = useState(null);
   const [catAnswered, setCatAnswered] = useState(0);
-  const [catCorrect, setCatCorrect] = useState(0);
   const [totalAnswered, setTotalAnswered] = useState(0);
   const [totalCorrect, setTotalCorrect] = useState(0);
   const [totalPts, setTotalPts] = useState(0);
@@ -138,8 +136,6 @@ export default function Booth() {
   const [timeLeft, setTimeLeft] = useState(25);
   const [leaderboard, setLeaderboard] = useState([]);
   const [myRank, setMyRank] = useState("-");
-  const [challengeWb, setChallengeWb] = useState(null);
-  const [showChallenge, setShowChallenge] = useState(false);
   const timerRef = useRef(null);
   const scannerRef = useRef(null);
 
@@ -164,6 +160,8 @@ export default function Booth() {
     if (data) {
       const idx = data.findIndex(e => e.booth_id === boothId);
       setMyRank(idx >= 0 ? idx + 1 : "-");
+      const me = data.find(e => e.booth_id === boothId);
+      setMyScore(me || null);
     }
   };
 
@@ -181,14 +179,13 @@ export default function Booth() {
     return () => { try { scannerRef.current?.clear(); } catch {} };
   }, [scanning]);
 
-  // Timer effect
   useEffect(() => {
     if (quizView !== "question") return;
     clearInterval(timerRef.current);
     setTimeLeft(25);
     timerRef.current = setInterval(() => {
       setTimeLeft(t => {
-        if (t <= 1) { clearInterval(timerRef.current); if (!submitted) handleSubmit(-1); return 0; }
+        if (t <= 1) { clearInterval(timerRef.current); handleSubmit(-1); return 0; }
         return t - 1;
       });
     }, 1000);
@@ -210,13 +207,17 @@ export default function Booth() {
       let wristbandId = rawText;
       if (rawText.includes("?id=")) wristbandId = rawText.split("?id=")[1].toUpperCase();
       wristbandId = wristbandId.trim().toUpperCase();
+
       const { data: participant } = await supabase.from("participants").select("*").eq("wristband_id", wristbandId).single();
       if (!participant) { setScanError(`Wristband ${wristbandId} not found. Ask participant to register first.`); return; }
       if (participant.stamps.includes(boothId)) { setScanError(`${wristbandId} already has a stamp for this booth.`); return; }
+
       const newStamps = [...participant.stamps, boothId];
       const eligible = isEligible(newStamps);
       await supabase.from("participants").update({ stamps: newStamps, eligible, last_updated: new Date().toISOString() }).eq("wristband_id", wristbandId);
       await supabase.from("stamp_log").insert({ staff_id: participant.staff_id, booth_id: boothId });
+
+      // Auto unlock 1 question for exhibitor
       const { data: current } = await supabase.from("exhibitor_scores").select("*").eq("booth_id", boothId).single();
       if (current) {
         await supabase.from("exhibitor_scores").update({
@@ -224,20 +225,18 @@ export default function Booth() {
           updated_at: new Date().toISOString(),
         }).eq("booth_id", boothId);
       }
+
       setScanResult({ wristbandId, name: participant.display_name || participant.name || "", eligible, totalStamps: newStamps.length });
       setScanHistory(prev => [{ wristbandId, name: participant.display_name || participant.name || "", time: new Date().toLocaleTimeString() }, ...prev.slice(0, 4)]);
       setStampCount(prev => prev + 1);
-      setChallengeWb(wristbandId);
-      setShowChallenge(true);
       await loadVisitors();
+      await loadLeaderboard();
     } catch (err) { setScanError("Could not read QR. Please try again."); }
   };
 
-  // Quiz functions
   const startCategory = (cat) => {
     setCurrentCat(cat);
     setCatAnswered(0);
-    setCatCorrect(0);
     pickQuestion(cat, 0);
   };
 
@@ -255,41 +254,24 @@ export default function Booth() {
   const handleSubmit = async (forcedAnswer) => {
     clearInterval(timerRef.current);
     const ans = forcedAnswer !== undefined ? forcedAnswer : selected;
-    const isCorrect = ans === currentQ.correct;
+    const isCorrect = ans === currentQ?.correct;
     setSubmitted(true);
     setSelected(ans);
 
-    if (isCorrect) {
-      const newCorrect = totalCorrect + 1;
-      const newPts = newCorrect * 5;
-      setTotalCorrect(newCorrect);
-      setTotalPts(newPts);
-      setCatCorrect(prev => prev + 1);
-
-      // Update Supabase exhibitor_scores
-      const { data: current } = await supabase.from("exhibitor_scores").select("*").eq("booth_id", boothId).single();
-      if (current) {
-        await supabase.from("exhibitor_scores").update({
-          total_questions: current.total_questions + 1,
-          correct_answers: current.correct_answers + 1,
-          points: (current.correct_answers + 1) * 5,
-          updated_at: new Date().toISOString(),
-        }).eq("booth_id", boothId);
-      }
-    } else {
-      const { data: current } = await supabase.from("exhibitor_scores").select("*").eq("booth_id", boothId).single();
-      if (current) {
-        await supabase.from("exhibitor_scores").update({
-          total_questions: current.total_questions + 1,
-          updated_at: new Date().toISOString(),
-        }).eq("booth_id", boothId);
-      }
+    const { data: current } = await supabase.from("exhibitor_scores").select("*").eq("booth_id", boothId).single();
+    if (current) {
+      const newCorrect = (current.correct_answers || 0) + (isCorrect ? 1 : 0);
+      await supabase.from("exhibitor_scores").update({
+        total_questions: (current.total_questions || 0) + 1,
+        correct_answers: newCorrect,
+        points: newCorrect * 5,
+        updated_at: new Date().toISOString(),
+      }).eq("booth_id", boothId);
     }
 
-    // Log quiz attempt
     await supabase.from("quiz_log").insert({
       booth_id: boothId,
-      wristband_id: challengeWb || "self",
+      wristband_id: "self",
       category: currentCat,
       mode: quizMode,
       correct: isCorrect ? 1 : 0,
@@ -297,23 +279,25 @@ export default function Booth() {
       points_earned: isCorrect ? 5 : 0,
     });
 
+    if (isCorrect) {
+      setTotalCorrect(prev => prev + 1);
+      setTotalPts(prev => prev + 5);
+    }
+
     await loadLeaderboard();
   };
 
-  const nextQuestion = () => {
-    if (quizMode === "participant" && catAnswered >= 3) {
-      setQuizView("done");
-      return;
-    }
-    pickQuestion(currentCat, catAnswered);
-  };
+  const nextQuestion = () => pickQuestion(currentCat, catAnswered);
 
-  const endSelfSession = () => {
+  const endSession = () => {
     setCatAnswered(0);
-    setCatCorrect(0);
     setQuizView("home");
     loadLeaderboard();
   };
+
+  const unlocked_count = myScore?.questions_unlocked || 0;
+  const answered_count = myScore?.total_questions || 0;
+  const remaining = Math.max(0, unlocked_count - answered_count);
 
   // PIN screen
   if (!unlocked) return (
@@ -335,7 +319,7 @@ export default function Booth() {
     </>
   );
 
-  // Scan result + challenge prompt
+  // Scan result screen
   if (scanResult) return (
     <>
       <style>{css}</style>
@@ -347,21 +331,32 @@ export default function Booth() {
           <span className="result-emoji">🎖️</span>
           <div className="result-title" style={{ color: "#10B981" }}>Stamp Awarded!</div>
           <div className="result-wb">{scanResult.wristbandId}</div>
-          <div className="result-name">{scanResult.name && <span>{scanResult.name} · </span>}{scanResult.totalStamps} stamps total{scanResult.eligible && <span style={{ color: "#10B981" }}> · ✓ Eligible!</span>}</div>
-        </div>
-        {showChallenge && (
-          <div className="challenge-box">
-            <div style={{ fontSize: 28, marginBottom: 8 }}>🎯</div>
-            <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 18, fontWeight: 800, color: "#F3E8FF", marginBottom: 6 }}>Challenge the Exhibitor!</div>
-            <div style={{ fontSize: 12, color: "#9CA3AF", marginBottom: 6 }}>{scanResult.wristbandId} activated a quiz challenge</div>
-            <div style={{ display: "inline-block", background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 20, padding: "3px 12px", fontSize: 10, color: "#F59E0B", fontWeight: 600, marginBottom: 14 }}>⚡ Exactly 3 questions — auto ends</div>
-            <button className="btn-primary" onClick={() => { setQuizMode("participant"); setQuizView("category"); setScanResult(null); setShowChallenge(false); setActiveTab("quiz"); }}>🎯 Start Challenge →</button>
-            <button className="btn-ghost" onClick={() => { setScanResult(null); setShowChallenge(false); }}>Skip for now</button>
+          <div className="result-name">
+            {scanResult.name && <span>{scanResult.name} · </span>}
+            {scanResult.totalStamps} stamps total
+            {scanResult.eligible && <span style={{ color: "#10B981" }}> · ✓ Eligible!</span>}
           </div>
-        )}
-        {!showChallenge && (
-          <button className="btn-primary" onClick={() => { setScanResult(null); setScanError(""); }}>Scan Next Participant →</button>
-        )}
+        </div>
+
+        {/* Unlock notification */}
+        <div style={{ background: "rgba(196,25,125,0.08)", border: "1px solid rgba(196,25,125,0.25)", borderRadius: 14, padding: 14, marginBottom: 14, display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ fontSize: 28 }}>🔓</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#F9A8D4", marginBottom: 3 }}>1 Quiz Question Unlocked!</div>
+            <div style={{ fontSize: 11, color: "#6B4F8B" }}>Answer it anytime from the Quiz tab when you're free</div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 800, color: "#C4197D" }}>{remaining + 1}</div>
+            <div style={{ fontSize: 9, color: "#6B4F8B" }}>waiting</div>
+          </div>
+        </div>
+
+        <button className="btn-green" onClick={() => { setScanResult(null); setScanError(""); setScanning(true); }}>
+          📷 Scan Next Participant →
+        </button>
+        <button className="btn-ghost" onClick={() => { setScanResult(null); setScanError(""); }}>
+          Back to Scanner
+        </button>
       </div>
     </>
   );
@@ -375,24 +370,41 @@ export default function Booth() {
         <div className="top-header"><div className="logo">MIMOS</div></div>
         {booth && (<div className="booth-header"><div className="domain-badge">{booth.domain_name}</div><div className="booth-name">{booth.name}</div>{booth.use_case && <div className="booth-use">{booth.use_case}</div>}</div>)}
 
-        <div className="stamp-count"><div className="sc-label">Visitors today</div><div className="sc-num">{stampCount}</div></div>
+        <div className="stamp-count">
+          <div className="sc-label">Visitors today</div>
+          <div className="sc-num">{stampCount}</div>
+        </div>
 
+        {/* Quiz unlocked notification badge on tab */}
         <div className="tab-row">
           <button className={`tab-btn ${activeTab === "scanner" ? "active" : ""}`} onClick={() => setActiveTab("scanner")}>📷 Scanner</button>
           <button className={`tab-btn ${activeTab === "visitors" ? "active" : ""}`} onClick={() => { setActiveTab("visitors"); loadVisitors(); }}>👥 Visitors ({stampCount})</button>
-          <button className={`tab-btn ${activeTab === "quiz" ? "active" : ""}`} onClick={() => { setActiveTab("quiz"); loadLeaderboard(); }}>🎯 Quiz</button>
+          <button className={`tab-btn ${activeTab === "quiz" ? "active" : ""}`} onClick={() => { setActiveTab("quiz"); loadLeaderboard(); }}>
+            🎯 Quiz {remaining > 0 ? `(${remaining})` : ""}
+          </button>
         </div>
 
         {/* SCANNER TAB */}
         {activeTab === "scanner" && (
           <>
+            {/* Show unlocked reminder if there are pending questions */}
+            {remaining > 0 && (
+              <div style={{ background: "rgba(196,25,125,0.06)", border: "1px solid rgba(196,25,125,0.2)", borderRadius: 12, padding: 10, marginBottom: 12, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => setActiveTab("quiz")}>
+                <div style={{ fontSize: 18 }}>🔓</div>
+                <div style={{ flex: 1, fontSize: 11, color: "#F9A8D4", fontWeight: 600 }}>{remaining} quiz question{remaining > 1 ? "s" : ""} waiting — tap to answer</div>
+                <div style={{ fontSize: 11, color: "#C4197D" }}>→</div>
+              </div>
+            )}
             {scanError && <div className="err">{scanError}</div>}
             {scanning ? (
               <><div className="qr-wrap"><div id="qr-reader" /></div><button className="btn-ghost" onClick={() => { setScanning(false); setScanError(""); }}>Cancel</button></>
             ) : (
               <button className="btn-primary" onClick={() => { setScanResult(null); setScanError(""); setScanning(true); }}>📷 Scan Participant Wristband</button>
             )}
-            {scanHistory.length > 0 && (<><div className="divider" /><div className="section-title">Last scanned</div><div className="scan-list">{scanHistory.map((s, i) => (<div key={i} className="scan-item"><div className="scan-check">✓</div><div className="scan-wb">{s.wristbandId}</div><div className="scan-name">{s.name || "—"}</div><div className="scan-time">{s.time}</div></div>))}</div></>)}
+            {scanHistory.length > 0 && (
+              <><div className="divider" /><div className="section-title">Last scanned</div>
+              <div className="scan-list">{scanHistory.map((s, i) => (<div key={i} className="scan-item"><div className="scan-check">✓</div><div className="scan-wb">{s.wristbandId}</div><div className="scan-name">{s.name || "—"}</div><div className="scan-time">{s.time}</div></div>))}</div></>
+            )}
           </>
         )}
 
@@ -400,7 +412,16 @@ export default function Booth() {
         {activeTab === "visitors" && (
           <>
             <div className="section-title">All visitors today ({visitors.length})</div>
-            {visitors.length === 0 ? (<div style={{ textAlign: "center", padding: "40px 20px", color: "#4B3B6B", fontSize: 14 }}>No visitors yet today</div>) : (visitors.map((v, i) => (<div key={i} className="visitor-item"><div style={{ fontSize: 12, fontWeight: 700, color: "#C4197D", width: 30 }}>#{i + 1}</div><div className="visitor-wb">{v.participants?.wristband_id || "—"}</div><div className="visitor-name">{v.participants?.display_name || "—"}</div><div className="visitor-time">{new Date(v.scanned_at).toLocaleTimeString()}</div></div>)))}
+            {visitors.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px 20px", color: "#4B3B6B", fontSize: 14 }}>No visitors yet today</div>
+            ) : visitors.map((v, i) => (
+              <div key={i} className="visitor-item">
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#C4197D", width: 30 }}>#{i + 1}</div>
+                <div className="visitor-wb">{v.participants?.wristband_id || "—"}</div>
+                <div className="visitor-name">{v.participants?.display_name || "—"}</div>
+                <div className="visitor-time">{new Date(v.scanned_at).toLocaleTimeString()}</div>
+              </div>
+            ))}
             <button className="btn-ghost" style={{ marginTop: 12 }} onClick={loadVisitors}>🔄 Refresh</button>
           </>
         )}
@@ -412,49 +433,76 @@ export default function Booth() {
             {quizView === "home" && (
               <>
                 <div className="score-bar">
-                  <div className="score-item"><div className="score-num" style={{ color: "#fff" }}>{totalAnswered}</div><div className="score-lbl">Answered</div></div>
+                  <div className="score-item"><div className="score-num" style={{ color: "#C4197D" }}>{unlocked_count}</div><div className="score-lbl">Unlocked</div></div>
                   <div className="score-div"></div>
-                  <div className="score-item"><div className="score-num" style={{ color: "#10B981" }}>{totalCorrect}</div><div className="score-lbl">Correct</div></div>
+                  <div className="score-item"><div className="score-num" style={{ color: "#A78BFA" }}>{answered_count}</div><div className="score-lbl">Answered</div></div>
                   <div className="score-div"></div>
-                  <div className="score-item"><div className="score-num" style={{ color: "#C4197D" }}>{totalPts}</div><div className="score-lbl">Points</div></div>
+                  <div className="score-item"><div className="score-num" style={{ color: "#10B981" }}>{myScore?.correct_answers || 0}</div><div className="score-lbl">Correct</div></div>
                   <div className="score-div"></div>
                   <div className="score-item"><div className="score-num" style={{ color: "#F59E0B" }}>#{myRank}</div><div className="score-lbl">Rank</div></div>
                 </div>
 
-                <div style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.25)", borderRadius: 14, padding: 14, marginBottom: 10 }}>
+                {/* Unlocked questions card */}
+                <div style={{
+                  background: remaining > 0 ? "rgba(196,25,125,0.08)" : "rgba(26,13,46,0.6)",
+                  border: `1px solid ${remaining > 0 ? "rgba(196,25,125,0.35)" : "rgba(124,58,237,0.15)"}`,
+                  borderRadius: 16, padding: 16, marginBottom: 12,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: remaining > 0 ? 12 : 0 }}>
+                    <div style={{ fontSize: 32 }}>{remaining > 0 ? "🔓" : "⏳"}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: remaining > 0 ? "#F9A8D4" : "#6B4F8B", marginBottom: 3 }}>
+                        {remaining > 0 ? `${remaining} Question${remaining > 1 ? "s" : ""} Waiting!` : "No questions waiting"}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#6B4F8B" }}>
+                        {unlocked_count} unlocked by visitors · {answered_count} answered · {myScore?.correct_answers || 0} correct
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 26, fontWeight: 800, color: remaining > 0 ? "#C4197D" : "#4B3B6B" }}>{remaining}</div>
+                      <div style={{ fontSize: 9, color: "#6B4F8B" }}>to answer</div>
+                    </div>
+                  </div>
+                  {remaining > 0 && (
+                    <button className="btn-primary" style={{ marginBottom: 0 }} onClick={() => { setQuizMode("self"); setQuizView("category"); }}>
+                      🎯 Answer Unlocked Questions →
+                    </button>
+                  )}
+                </div>
+
+                {/* Self practice anytime */}
+                <div style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.2)", borderRadius: 14, padding: 14, marginBottom: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                     <div style={{ fontSize: 22 }}>🧠</div>
-                    <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA" }}>Self Practice</div><div style={{ fontSize: 10, color: "#6B4F8B", marginTop: 2 }}>Pick category → questions keep going → stop anytime</div></div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA" }}>Self Practice</div>
+                      <div style={{ fontSize: 10, color: "#6B4F8B", marginTop: 2 }}>Answer anytime — more answers = better ranking</div>
+                    </div>
                   </div>
-                  <button className="btn-primary" style={{ marginBottom: 0 }} onClick={() => { setQuizMode("self"); setQuizView("category"); }}>🧠 Start Practice →</button>
+                  <button className="btn-ghost" style={{ marginBottom: 0 }} onClick={() => { setQuizMode("self"); setQuizView("category"); }}>
+                    🧠 Start Practice →
+                  </button>
                 </div>
 
-                <div style={{ background: "rgba(196,25,125,0.06)", border: "1px solid rgba(196,25,125,0.25)", borderRadius: 14, padding: 14, marginBottom: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                    <div style={{ fontSize: 22 }}>👥</div>
-                    <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: "#F9A8D4" }}>Participant Challenge</div><div style={{ fontSize: 10, color: "#6B4F8B", marginTop: 2 }}>Exactly 3 questions · activated after stamp scan</div></div>
-                  </div>
-                  <button className="btn-ghost" style={{ marginBottom: 0, opacity: 0.5 }} disabled>Waiting for participant scan...</button>
-                </div>
-
+                {/* Mini leaderboard */}
                 <div className="card">
                   <div className="section-title">🏆 Exhibitor Leaderboard</div>
-                  {leaderboard.length === 0 ? (<div style={{ textAlign: "center", color: "#4B3B6B", fontSize: 12, padding: "10px 0" }}>No scores yet</div>) : (
-                    leaderboard.slice(0, 5).map((e, i) => (
-                      <div key={i} className="lb-row" style={e.booth_id === boothId ? { background: "rgba(196,25,125,0.06)", borderRadius: 10, padding: "6px 8px", margin: "3px -4px" } : {}}>
-                        <div className="lb-rank" style={{ background: RANK_BG[i] || "rgba(124,58,237,0.1)", color: RANK_COLOR[i] || "#6B4F8B" }}>{i + 1}</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 11, fontWeight: 600, color: e.booth_id === boothId ? "#C4197D" : "#F3E8FF" }}>{e.booth_name}{e.booth_id === boothId ? " ← You" : ""}</div>
-                          <div style={{ fontSize: 9, color: "#6B4F8B" }}>{e.domain_name} · {e.correct_answers}/{e.total_questions} correct</div>
-                          <div className="prog-bar"><div className="prog-fill" style={{ width: leaderboard[0]?.points > 0 ? Math.round(e.points / leaderboard[0].points * 100) + "%" : "0%", background: "#C4197D" }}></div></div>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: "#C4197D" }}>{e.points}</div>
-                          <div style={{ fontSize: 8, color: "#6B4F8B" }}>pts</div>
-                        </div>
+                  {leaderboard.filter(e => (e.points || 0) > 0).length === 0 ? (
+                    <div style={{ textAlign: "center", color: "#4B3B6B", fontSize: 12, padding: "10px 0" }}>No scores yet — be the first!</div>
+                  ) : leaderboard.filter(e => (e.points || 0) > 0).slice(0, 5).map((e, i) => (
+                    <div key={i} className="lb-row" style={e.booth_id === boothId ? { background: "rgba(196,25,125,0.06)", borderRadius: 10, padding: "6px 8px", margin: "3px -4px" } : {}}>
+                      <div className="lb-rank" style={{ background: RANK_BG[i] || "rgba(124,58,237,0.1)", color: RANK_COLOR[i] || "#6B4F8B" }}>{i + 1}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: e.booth_id === boothId ? "#C4197D" : "#F3E8FF" }}>{e.booth_name}{e.booth_id === boothId ? " ← You" : ""}</div>
+                        <div style={{ fontSize: 9, color: "#6B4F8B" }}>🔓 {e.questions_unlocked || 0} · ✍️ {e.total_questions || 0} · ✅ {e.correct_answers || 0}</div>
+                        <div className="prog-bar"><div className="prog-fill" style={{ width: leaderboard.filter(e=>(e.points||0)>0)[0]?.points > 0 ? Math.round(e.points / leaderboard.filter(e=>(e.points||0)>0)[0].points * 100) + "%" : "0%", background: "#C4197D" }}></div></div>
                       </div>
-                    ))
-                  )}
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: "#C4197D" }}>{e.points || 0}</div>
+                        <div style={{ fontSize: 8, color: "#6B4F8B" }}>pts</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </>
             )}
@@ -462,11 +510,11 @@ export default function Booth() {
             {/* CATEGORY SELECT */}
             {quizView === "category" && (
               <>
-                <div style={{ background: quizMode === "participant" ? "rgba(196,25,125,0.08)" : "rgba(124,58,237,0.08)", border: `1px solid ${quizMode === "participant" ? "rgba(196,25,125,0.25)" : "rgba(124,58,237,0.25)"}`, borderRadius: 12, padding: 12, marginBottom: 14, display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ fontSize: 20 }}>{quizMode === "participant" ? "👥" : "🧠"}</div>
+                <div style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.25)", borderRadius: 12, padding: 12, marginBottom: 14, display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ fontSize: 20 }}>🧠</div>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: quizMode === "participant" ? "#F9A8D4" : "#A78BFA" }}>{quizMode === "participant" ? `Participant Challenge · ${challengeWb}` : "Self Practice"}</div>
-                    <div style={{ fontSize: 10, color: "#6B4F8B", marginTop: 2 }}>{quizMode === "participant" ? "Exactly 3 questions — ends automatically" : "Questions keep going. Stop anytime."}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#A78BFA" }}>Self Practice</div>
+                    <div style={{ fontSize: 10, color: "#6B4F8B", marginTop: 2 }}>Questions keep going. Stop anytime.</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 12, color: "#9CA3AF", textAlign: "center", marginBottom: 14 }}>🎯 Pick a category — questions stay in that category!</div>
@@ -488,18 +536,15 @@ export default function Booth() {
                   <div style={{ fontSize: 10, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: CAT_INFO[currentCat]?.bg, border: `1px solid ${CAT_INFO[currentCat]?.border}`, color: CAT_INFO[currentCat]?.color }}>{CAT_INFO[currentCat]?.label}</div>
                   <div className={`q-timer ${timeLeft <= 10 ? "urgent" : ""}`}>{timeLeft}</div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: quizMode === "participant" ? "rgba(196,25,125,0.1)" : "rgba(124,58,237,0.1)", color: quizMode === "participant" ? "#F9A8D4" : "#A78BFA" }}>{quizMode === "participant" ? `👥 Participant Challenge · Q${catAnswered} of 3` : "🧠 Self Practice"}</div>
-                </div>
                 <div className="q-dots">
-                  {Array(quizMode === "participant" ? 3 : Math.max(catAnswered, 5)).fill(0).map((_, i) => (
+                  {Array(Math.max(catAnswered, 5)).fill(0).map((_, i) => (
                     <div key={i} className={`q-dot ${i < catAnswered - 1 ? "done" : i === catAnswered - 1 ? "active" : ""}`}></div>
                   ))}
                 </div>
                 <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
                   <div style={{ flex: 1, background: "rgba(26,13,46,0.8)", border: "1px solid rgba(124,58,237,0.1)", borderRadius: 9, padding: 8, textAlign: "center" }}><div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: "#10B981" }}>{totalCorrect}</div><div style={{ fontSize: 8, color: "#6B4F8B" }}>Correct</div></div>
                   <div style={{ flex: 1, background: "rgba(26,13,46,0.8)", border: "1px solid rgba(124,58,237,0.1)", borderRadius: 9, padding: 8, textAlign: "center" }}><div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: "#C4197D" }}>{totalPts}</div><div style={{ fontSize: 8, color: "#6B4F8B" }}>Points</div></div>
-                  <div style={{ flex: 1, background: "rgba(26,13,46,0.8)", border: "1px solid rgba(124,58,237,0.1)", borderRadius: 9, padding: 8, textAlign: "center" }}><div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: "#fff" }}>{totalAnswered}</div><div style={{ fontSize: 8, color: "#6B4F8B" }}>Total</div></div>
+                  <div style={{ flex: 1, background: "rgba(26,13,46,0.8)", border: "1px solid rgba(124,58,237,0.1)", borderRadius: 9, padding: 8, textAlign: "center" }}><div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 15, fontWeight: 800, color: "#F59E0B" }}>#{myRank}</div><div style={{ fontSize: 8, color: "#6B4F8B" }}>Rank</div></div>
                 </div>
                 <div className="q-text">{currentQ.text}</div>
                 <div className="q-opts">
@@ -525,39 +570,18 @@ export default function Booth() {
                 )}
                 {!submitted ? (
                   <button className="btn-primary" onClick={() => handleSubmit()} disabled={selected === null}>Submit Answer</button>
-                ) : quizMode === "participant" && catAnswered >= 3 ? (
-                  <button className="btn-green" onClick={() => setQuizView("done")}>✓ See Challenge Result →</button>
                 ) : (
                   <>
-                    <button className="btn-primary" onClick={nextQuestion}>{quizMode === "participant" ? `Next Question (${3 - catAnswered} left) →` : "Next Question →"}</button>
-                    {quizMode === "self" && <button className="btn-ghost" onClick={endSelfSession}>Stop Session</button>}
+                    <button className="btn-primary" onClick={nextQuestion}>Next Question →</button>
+                    <button className="btn-ghost" onClick={endSession}>Stop Session</button>
                   </>
                 )}
               </>
             )}
-
-            {/* CHALLENGE DONE */}
-            {quizView === "done" && (
-              <div className="done-box">
-                <div style={{ fontSize: 60, marginBottom: 12 }}>🏆</div>
-                <div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 800, color: "#F3E8FF", marginBottom: 4 }}>Challenge Complete!</div>
-                <div style={{ fontSize: 12, color: "#9CA3AF", marginBottom: 20 }}>{challengeWb}'s challenge completed</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 20 }}>
-                  <div style={{ background: "rgba(26,13,46,0.8)", border: "1px solid rgba(124,58,237,0.15)", borderRadius: 12, padding: 12 }}><div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>3</div><div style={{ fontSize: 9, color: "#6B4F8B", marginTop: 2 }}>Questions</div></div>
-                  <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 12, padding: 12 }}><div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 800, color: "#10B981" }}>{catCorrect}</div><div style={{ fontSize: 9, color: "#6B4F8B", marginTop: 2 }}>Correct</div></div>
-                  <div style={{ background: "rgba(196,25,125,0.08)", border: "1px solid rgba(196,25,125,0.2)", borderRadius: 12, padding: 12 }}><div style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 22, fontWeight: 800, color: "#C4197D" }}>{totalPts}</div><div style={{ fontSize: 9, color: "#6B4F8B", marginTop: 2 }}>Points</div></div>
-                </div>
-                <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 12, padding: 12, marginBottom: 20 }}>
-                  <div style={{ fontSize: 11, color: "#F59E0B", fontWeight: 600 }}>Current Rank: #{myRank} on Exhibitor Leaderboard 🎯</div>
-                </div>
-                <button className="btn-primary" onClick={() => { setQuizView("home"); setChallengeWb(null); setActiveTab("scanner"); }}>← Back to Scanner</button>
-                <button className="btn-ghost" onClick={() => { setQuizMode("self"); setQuizView("category"); }}>🧠 Continue Self Practice</button>
-              </div>
-            )}
           </>
         )}
 
-        <div className="divider" />
+        <div style={{ height: 16 }} />
         <button className="btn-ghost" onClick={() => { setUnlocked(false); setPin(""); setScanHistory([]); setStampCount(0); setQuizView("home"); setActiveTab("scanner"); }}>🔒 Lock Booth</button>
       </div>
     </>
